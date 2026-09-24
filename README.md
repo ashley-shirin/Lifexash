@@ -30,7 +30,7 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-Copy-Item .env.example .env        # then edit .env: DB password + JWT_SECRET_KEY
+Copy-Item .env.example .env        # then edit .env: DB password + JWT_SECRET
 alembic upgrade head               # creates all tables
 uvicorn app.main:app --reload      # http://localhost:8000
 ```

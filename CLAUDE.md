@@ -1,5 +1,9 @@
 # LifeXash
 
+## Current status
+- Auth (register / login / me + frontend forms) is built but **NOT manually tested yet**.
+- Next: create `backend/.env` with a `JWT_SECRET` → run `docs/auth-test-checklist.md` together → fix any bugs → then start the Tasks & Daily Planner feature.
+
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
 Stack: React (Vite) · FastAPI · MySQL 9.7 · SQLAlchemy 2.0 · Alembic · JWT auth.
 
@@ -14,7 +18,7 @@ backend/app/
   routers/    HTTP only: parse request, call a service, return response
   main.py     FastAPI app + router registration
 backend/alembic/versions/   migration files
-frontend/src/  api/ (axios client) · components/ · pages/
+frontend/src/  api/ (axios client) · context/ (AuthContext) · components/ · pages/
 ```
 
 Layering rule: routers only handle HTTP, services hold logic, models are tables — no queries in routers.
@@ -27,8 +31,7 @@ Layering rule: routers only handle HTTP, services hold logic, models are tables 
 - `tags` — name unique per user (`user_id`, `name`).
 - `note_tags` — many-to-many join between notes and tags (composite PK, no extra columns).
 - `journal_entries` — one entry per user per day (unique `user_id`, `entry_date`); `mood` is 1–5.
-
-All child tables use `ON DELETE CASCADE` from `users`.
+- All child tables use `ON DELETE CASCADE` from `users`.
 
 ## Rules
 
@@ -40,11 +43,8 @@ All child tables use `ON DELETE CASCADE` from `users`.
 
 ## Run
 
-Backend (PowerShell, from `backend/`):
-```powershell
-.\.venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload     # http://localhost:8000  (docs at /docs)
-```
+Backend (from `backend/`): `.\.venv\Scripts\Activate.ps1` then `uvicorn app.main:app --reload`
+→ http://localhost:8000 (Swagger at /docs)
 Frontend (from `frontend/`): `npm run dev`  → http://localhost:5173
 
 Migrations (from `backend/`, venv active):
