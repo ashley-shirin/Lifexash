@@ -1,0 +1,40 @@
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #1f2937;
+  background: #f9fafb;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.navbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #4f46e5;
+}
+
+.navbar a {
+  color: #e0e7ff;
+  text-decoration: none;
+}
+
+.navbar a.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.navbar .brand {
+  color: #fff;
+  font-weight: 700;
+  margin-right: auto;
+}
