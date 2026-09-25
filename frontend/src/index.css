@@ -62,14 +62,18 @@ label {
   font-weight: 500;
 }
 
-input {
+input,
+textarea,
+select {
   padding: 0.5rem 0.75rem;
   font: inherit;
   border: 1px solid #d1d5db;
   border-radius: 6px;
 }
 
-input:focus {
+input:focus,
+textarea:focus,
+select:focus {
   outline: 2px solid #4f46e5;
   outline-offset: 1px;
 }
@@ -118,4 +122,193 @@ button:disabled {
 
 .profile dd {
   margin: 0 0 1rem;
+}
+
+button.secondary {
+  color: #374151;
+  background: #fff;
+  border: 1px solid #d1d5db;
+}
+
+.link-button {
+  padding: 0.25rem 0.4rem;
+  font-weight: 500;
+  color: #4f46e5;
+  background: none;
+}
+
+.link-button.danger {
+  color: #b91c1c;
+}
+
+.optional {
+  font-weight: 400;
+  color: #6b7280;
+}
+
+/* Planner */
+.planner-header,
+.day-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.planner-header {
+  justify-content: space-between;
+}
+
+.day-title {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+.today-tag {
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+  color: #3730a3;
+  background: #e0e7ff;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.empty-state {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #6b7280;
+  background: #fff;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.progress-track {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #16a34a;
+  transition: width 0.2s;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.task-item input[type="checkbox"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  padding: 0;
+  accent-color: #16a34a;
+}
+
+.task-main {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.task-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.task-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  overflow-wrap: anywhere;
+}
+
+.task-item.done .task-title {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+.task-time {
+  font-variant-numeric: tabular-nums;
+  color: #4b5563;
+}
+
+.badge {
+  padding: 0.1rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  border-radius: 999px;
+}
+
+.badge-low {
+  color: #065f46;
+  background: #d1fae5;
+}
+
+.badge-medium {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.badge-high {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+/* Modal (native <dialog>) */
+.modal {
+  width: min(520px, calc(100vw - 2rem));
+  padding: 1.5rem;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 0.2);
+}
+
+.modal::backdrop {
+  background: rgb(17 24 39 / 0.45);
+}
+
+.modal h2 {
+  margin-top: 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.75rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
