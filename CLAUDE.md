@@ -3,7 +3,12 @@
 ## Current status
 - Auth (register / login / me, JWT, protected routes) is **done and tested** — see `docs/auth-test-checklist.md`.
 - Tasks & Daily Planner (CRUD, toggle, day view, progress bar) is **done and tested** — see `docs/tasks-test-checklist.md`.
-- Next: the Notes + Tags feature.
+- Notes + Tags (search, tag filter, pin, editor with inline tag create) is **done and tested** — see `docs/notes-test-checklist.md`.
+- Next: the Journal feature.
+
+## Before deploy (TODO)
+- Send timestamps in UTC with a "Z" (e.g. `2026-09-26T08:05:00Z`), so "updated … ago" is correct in any
+  time zone. Today they're naive MySQL local time, which only works while DB and browser share a zone.
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
 Stack: React (Vite) · FastAPI · MySQL 9.7 · SQLAlchemy 2.0 · Alembic · JWT auth.
