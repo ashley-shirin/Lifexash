@@ -2,7 +2,8 @@
 
 ## Current status
 - Auth (register / login / me, JWT, protected routes) is **done and tested** — see `docs/auth-test-checklist.md`.
-- Next: the Tasks & Daily Planner feature.
+- Tasks & Daily Planner (CRUD, toggle, day view, progress bar) is **done and tested** — see `docs/tasks-test-checklist.md`.
+- Next: the Notes + Tags feature.
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
 Stack: React (Vite) · FastAPI · MySQL 9.7 · SQLAlchemy 2.0 · Alembic · JWT auth.
