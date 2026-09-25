@@ -1,8 +1,8 @@
 # LifeXash
 
 ## Current status
-- Auth (register / login / me + frontend forms) is built but **NOT manually tested yet**.
-- Next: create `backend/.env` with a `JWT_SECRET` → run `docs/auth-test-checklist.md` together → fix any bugs → then start the Tasks & Daily Planner feature.
+- Auth (register / login / me, JWT, protected routes) is **done and tested** — see `docs/auth-test-checklist.md`.
+- Next: the Tasks & Daily Planner feature.
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
 Stack: React (Vite) · FastAPI · MySQL 9.7 · SQLAlchemy 2.0 · Alembic · JWT auth.
