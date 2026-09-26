@@ -9,11 +9,9 @@
 - Dashboard (greeting, today's score, streak, moods, next tasks, weekly chart, seed script) is
   **done and tested** — see `docs/dashboard-test-checklist.md`. Unit tests: `python -m pytest` from `backend/`.
 - All 5 features are done and tested.
-- Next: pre-deploy polish (see "Before deploy" below), then PWA, then deploy.
-
-## Before deploy (TODO)
-- Send timestamps in UTC with a "Z" (e.g. `2026-09-26T08:05:00Z`), so "updated … ago" is correct in any
-  time zone. Today they're naive MySQL local time, which only works while DB and browser share a zone.
+- Pre-deploy polish (UTC timestamps with "Z", config from env only, build check, README, DB backup +
+  restore test) is **done and tested** — see `docs/pre-deploy-checklist.md`.
+- Next: mobile layout + PWA, then deploy.
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
 Stack: React (Vite) · FastAPI · MySQL 9.7 · SQLAlchemy 2.0 · Alembic · JWT auth.
