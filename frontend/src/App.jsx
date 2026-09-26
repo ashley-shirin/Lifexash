@@ -30,8 +30,7 @@ export default function App() {
             <Route path="/notes/new" element={<NoteEditor />} />
             <Route path="/notes/:noteId" element={<NoteEditor />} />
             <Route path="/journal" element={<Journal />} />
-            <Route path="/journal/new" element={<JournalEditor />} />
-            <Route path="/journal/:entryId" element={<JournalEditor />} />
+            <Route path="/journal/:dateKey" element={<JournalEditor />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
 

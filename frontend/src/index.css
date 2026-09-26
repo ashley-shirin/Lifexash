@@ -529,3 +529,131 @@ span.chip {
   gap: 0.5rem;
   align-items: center;
 }
+
+/* Journal calendar */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem;
+}
+
+.calendar-weekday {
+  padding: 0.25rem 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  color: #6b7280;
+}
+
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.75rem;
+  padding: 0.35rem 0.25rem;
+  color: inherit;
+  text-decoration: none;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+a.calendar-day:hover {
+  border-color: #a5b4fc;
+}
+
+.calendar-day.has-entry {
+  background: #eef2ff;
+}
+
+.calendar-day.today {
+  border: 2px solid #4f46e5;
+}
+
+.calendar-day.today .calendar-number {
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+.calendar-day.future {
+  color: #9ca3af;
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.calendar-number {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-mood {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.journal-average {
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+/* Journal editor */
+.journal-editor h1 {
+  margin: 0.5rem 0 0.25rem;
+}
+
+.mood-picker {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.mood-picker legend {
+  padding: 0 0.25rem;
+  font-weight: 500;
+}
+
+.mood-options {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.mood-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.6rem 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.mood-option:hover:not(:disabled) {
+  border-color: #a5b4fc;
+}
+
+.mood-option.selected {
+  font-weight: 700;
+  color: #3730a3;
+  background: #eef2ff;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px #c7d2fe;
+}
+
+.mood-emoji {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.mood-option:not(.selected) .mood-emoji {
+  filter: grayscale(0.6);
+  opacity: 0.75;
+}

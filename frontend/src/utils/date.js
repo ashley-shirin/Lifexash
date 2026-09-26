@@ -52,3 +52,25 @@ export function formatTime(time) {
   const suffix = h < 12 ? "AM" : "PM";
   return `${h % 12 || 12}:${pad(m)} ${suffix}`;
 }
+
+// ---- Months ("YYYY-MM"), used by the journal calendar ----
+
+/** "YYYY-MM-DD" (or "YYYY-MM") → "YYYY-MM" */
+export const monthKeyOf = (key) => key.slice(0, 7);
+
+/** "YYYY-MM" → Date on the 1st at local midnight, or null if it isn't a real month. */
+export function parseMonthKey(key) {
+  return parseDateKey(`${key ?? ""}-01`);
+}
+
+/** Shift a "YYYY-MM" by some months (negative goes back). */
+export function addMonths(key, months) {
+  const date = parseMonthKey(key);
+  date.setMonth(date.getMonth() + months); // safe: the day is the 1st, so it never rolls over
+  return monthKeyOf(toDateKey(date));
+}
+
+/** "YYYY-MM" → "September 2026" */
+export function formatMonth(key) {
+  return parseMonthKey(key).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+}
