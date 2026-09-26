@@ -6,7 +6,10 @@
 - Notes + Tags (search, tag filter, pin, editor with inline tag create) is **done and tested** — see `docs/notes-test-checklist.md`.
 - Journal (month calendar with mood emojis, monthly average, editor with mood picker, one entry per day)
   is **done and tested** — see `docs/journal-test-checklist.md`.
-- Next: the Dashboard.
+- Dashboard (greeting, today's score, streak, moods, next tasks, weekly chart, seed script) is
+  **done and tested** — see `docs/dashboard-test-checklist.md`. Unit tests: `python -m pytest` from `backend/`.
+- All 5 features are done and tested.
+- Next: pre-deploy polish (see "Before deploy" below), then PWA, then deploy.
 
 ## Before deploy (TODO)
 - Send timestamps in UTC with a "Z" (e.g. `2026-09-26T08:05:00Z`), so "updated … ago" is correct in any
