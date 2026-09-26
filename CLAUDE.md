@@ -4,7 +4,9 @@
 - Auth (register / login / me, JWT, protected routes) is **done and tested** — see `docs/auth-test-checklist.md`.
 - Tasks & Daily Planner (CRUD, toggle, day view, progress bar) is **done and tested** — see `docs/tasks-test-checklist.md`.
 - Notes + Tags (search, tag filter, pin, editor with inline tag create) is **done and tested** — see `docs/notes-test-checklist.md`.
-- Next: the Journal feature.
+- Journal (month calendar with mood emojis, monthly average, editor with mood picker, one entry per day)
+  is **done and tested** — see `docs/journal-test-checklist.md`.
+- Next: the Dashboard.
 
 ## Before deploy (TODO)
 - Send timestamps in UTC with a "Z" (e.g. `2026-09-26T08:05:00Z`), so "updated … ago" is correct in any
