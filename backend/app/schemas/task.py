@@ -1,8 +1,9 @@
-from datetime import date, datetime, time
+from datetime import date, time
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.task import TaskPriority
+from app.schemas.types import UtcDatetime
 
 
 def _clean_title(value: str) -> str:
@@ -67,6 +68,6 @@ class TaskOut(BaseModel):
     task_time: time
     priority: TaskPriority
     is_completed: bool
-    completed_at: datetime | None
-    created_at: datetime
-    updated_at: datetime
+    completed_at: UtcDatetime | None
+    created_at: UtcDatetime
+    updated_at: UtcDatetime

@@ -14,7 +14,7 @@ today 3 of 5 done (60%), streak 7 days, 7-day average mood 3.8.
 
 import argparse
 import sys
-from datetime import date, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 
 from sqlalchemy import select
 
@@ -55,6 +55,12 @@ JOURNAL = {
     4: "Good day, got most things done.",
     5: "Great day! Everything clicked.",
 }
+
+
+def local_to_utc(day: date, at: time) -> datetime:
+    """A wall-clock time on this computer → naive UTC, the way timestamps are stored in the DB."""
+    # astimezone() on a naive datetime treats it as this computer's local time.
+    return datetime.combine(day, at).astimezone(UTC).replace(tzinfo=None)
 
 
 def main() -> int:
@@ -110,7 +116,7 @@ def main() -> int:
                             task_time=task_time,
                             priority=priority,
                             is_completed=done,
-                            completed_at=datetime.combine(day, task_time) + timedelta(minutes=45) if done else None,
+                            completed_at=local_to_utc(day, task_time) + timedelta(minutes=45) if done else None,
                         )
                     )
                     added_tasks += 1

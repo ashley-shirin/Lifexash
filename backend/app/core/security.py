@@ -8,7 +8,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
+from app.core.config import JWT_ALGORITHM, settings
 from app.core.database import get_db
 from app.models import User
 
@@ -36,7 +36,7 @@ def create_access_token(user_id: int) -> str:
         "iat": now,
         "exp": now + timedelta(minutes=settings.JWT_EXPIRE_MINUTES),
     }
-    return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
 def decode_access_token(token: str) -> int:
@@ -44,7 +44,7 @@ def decode_access_token(token: str) -> int:
     payload = jwt.decode(
         token,
         settings.JWT_SECRET,
-        algorithms=[settings.JWT_ALGORITHM],
+        algorithms=[JWT_ALGORITHM],
         options={"require": ["exp", "sub"]},
     )
     try:

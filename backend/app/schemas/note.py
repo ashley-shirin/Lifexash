@@ -1,8 +1,7 @@
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.schemas.tag import TagOut
+from app.schemas.types import UtcDatetime
 
 
 def _clean_title(value: str) -> str:
@@ -67,8 +66,8 @@ class NoteOut(BaseModel):
     content: str
     is_pinned: bool
     tags: list[TagOut]
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcDatetime
+    updated_at: UtcDatetime
 
     @field_validator("tags")
     @classmethod

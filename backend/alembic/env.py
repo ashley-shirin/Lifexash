@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, pool
 
 import app.models  # noqa: F401  (registers every table on Base.metadata)
 from app.core.config import settings
-from app.core.database import Base
+from app.core.database import Base, use_utc
 
 config = context.config
 
@@ -31,6 +31,7 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     """Connect to the database from .env and apply migrations."""
     connectable = create_engine(settings.DATABASE_URL, poolclass=pool.NullPool)
+    use_utc(connectable)  # same UTC session as the app
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
         with context.begin_transaction():

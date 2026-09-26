@@ -143,3 +143,6 @@ As **A**:
 "updated … ago" reads the backend time as your **browser's local time**. MySQL stores it in the DB machine's
 local time, so it's correct while both run on your PC. With the DevTools time-zone override from the tasks
 checklist (Kiritimati), the "ago" text will be off by the time-zone difference — that's expected for now.
+
+**Fixed (pre-deploy):** timestamps are now stored in UTC and sent with a "Z", so "updated … ago" is correct in
+any time zone. See `docs/pre-deploy-checklist.md`, Round 1.

@@ -1,8 +1,9 @@
-from datetime import date, datetime
+from datetime import date
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.core.dates import not_too_far_ahead
+from app.schemas.types import UtcDatetime
 
 
 def _clean_title(value: str | None) -> str | None:
@@ -67,5 +68,5 @@ class JournalOut(BaseModel):
     mood: int
     title: str | None
     content: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: UtcDatetime
+    updated_at: UtcDatetime

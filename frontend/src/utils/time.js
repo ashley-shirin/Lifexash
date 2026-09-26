@@ -1,8 +1,7 @@
 // "Time ago" helpers for timestamps coming from the backend.
 //
-// The backend sends datetimes like "2026-09-25T14:05:00" with no time zone. MySQL stores them in
-// the DB server's local time, and JavaScript parses a date+time string without "Z" as the
-// browser's local time. That matches while the DB and the browser are on the same machine / zone.
+// The backend sends timestamps in UTC with a "Z", like "2026-09-25T14:05:00Z". `new Date()` reads
+// the "Z" as UTC, so the difference with "now" is correct in any time zone the browser is in.
 
 const UNITS = [
   ["year", 365 * 24 * 60 * 60],
@@ -16,7 +15,7 @@ const UNITS = [
 // Intl.RelativeTimeFormat is built into the browser: it turns (-2, "hour") into "2 hours ago".
 const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
-/** "2026-09-25T14:05:00" → "2 hours ago" (or "just now" for under a minute, incl. small clock skew). */
+/** "2026-09-25T14:05:00Z" → "2 hours ago" (or "just now" for under a minute, incl. small clock skew). */
 export function timeAgo(isoString, now = new Date()) {
   const seconds = Math.round((now - new Date(isoString)) / 1000);
   if (seconds < 60) return "just now";
