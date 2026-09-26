@@ -657,3 +657,180 @@ a.calendar-day:hover {
   filter: grayscale(0.6);
   opacity: 0.75;
 }
+
+/* Dashboard */
+.dashboard h1 {
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-date {
+  margin: 0 0 1.25rem;
+  color: #6b7280;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.stat-card .progress {
+  margin-bottom: 0;
+}
+
+.stat-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.stat-value-small {
+  font-size: 1.1rem;
+}
+
+.stat-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.stat-link {
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+.dashboard-section {
+  margin-top: 2rem;
+}
+
+.dashboard-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+.section-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.empty-state p {
+  margin: 0.25rem 0;
+}
+
+/* Weekly chart (hand-drawn SVG) */
+.weekly-chart {
+  margin: 0;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.weekly-chart-canvas {
+  width: 100%;
+}
+
+.weekly-chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.chart-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  fill: #374151;
+}
+
+.chart-axis,
+.chart-note {
+  font-size: 12px;
+  fill: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-note {
+  font-style: italic;
+}
+
+.chart-day {
+  font-size: 12px;
+  fill: #374151;
+}
+
+.chart-day.today {
+  font-weight: 700;
+  fill: #4f46e5;
+}
+
+.chart-value {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #1f2937;
+}
+
+.chart-emoji {
+  font-size: 14px;
+}
+
+.chart-hover {
+  fill: transparent;
+}
+
+.chart-hover:hover {
+  fill: rgb(79 70 229 / 0.06);
+}
+
+.chart-summary {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.chart-table {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.chart-table summary {
+  color: #4f46e5;
+  cursor: pointer;
+}
+
+.chart-table table {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+}
+
+.chart-table th,
+.chart-table td {
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.chart-table th[scope="row"] {
+  font-weight: 500;
+}

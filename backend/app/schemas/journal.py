@@ -1,6 +1,8 @@
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.core.dates import not_too_far_ahead
 
 
 def _clean_title(value: str | None) -> str | None:
@@ -17,15 +19,6 @@ def _content_not_blank(value: str) -> str:
     return value
 
 
-def _not_too_far_ahead(value: date) -> date:
-    # Compare with UTC "today": no time zone is more than 14 h ahead of UTC, so +1 day always
-    # covers the user's local today, wherever they are (and whatever zone the server runs in).
-    latest = datetime.now(UTC).date() + timedelta(days=1)
-    if value > latest:
-        raise ValueError("entry_date cannot be in the future")
-    return value
-
-
 class JournalCreate(BaseModel):
     entry_date: date
     # strict=True: only a real JSON integer is accepted ("3", true or 3.0 are rejected).
@@ -33,7 +26,7 @@ class JournalCreate(BaseModel):
     title: str | None = Field(default=None, max_length=200)
     content: str
 
-    _entry_date = field_validator("entry_date")(_not_too_far_ahead)
+    _entry_date = field_validator("entry_date")(not_too_far_ahead("entry_date"))
     _title = field_validator("title")(_clean_title)
     _content = field_validator("content")(_content_not_blank)
 
