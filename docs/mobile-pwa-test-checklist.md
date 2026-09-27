@@ -2,7 +2,7 @@
 
 Status: Rounds 1–6 passed on 2026-09-27. Round 7 passed on Android (Chrome) on 2026-09-28 against
 https://lifexash-web.onrender.com, including the update prompt and Round 6 on the live site. iPhone was not
-tested. The "waking up" notice has only been checked while the API was already awake (see its items).
+tested. The "waking up" notice was seen live after 20 minutes idle. The local 8000 ms check is still open.
 
 Covers the `feature/mobile-pwa` changes: phone layout (bottom nav, 44 px touch targets, full-screen task
 modal, compact journal calendar), the web app manifest and icons, the service worker (app shell only),
@@ -190,11 +190,11 @@ Installing needs a normal window, not Incognito.
   - Back to **No throttling** → normal use never shows it (requests take well under 5 s).
   - Known limit: while the full-screen task form is open, the notice is hidden behind it (a modal
     `<dialog>` is drawn above everything else). Saving still works.
-- [ ] **"Waking up the server" notice, live** (after deploy): leave the site unused for 20+ minutes (the free
+- [x] **"Waking up the server" notice, live** (after deploy): leave the site unused for 20+ minutes (the free
       API sleeps after about 15), then open the installed app → the notice appears while the API wakes up
       and goes away when the dashboard loads.
       **2026-09-28 (Android):** the API answered at normal speed, so it wasn't asleep, and the notice correctly
-      didn't appear. The wake-up case itself (the notice appears, then disappears) hasn't been seen yet.
+      didn't appear. **Later on 2026-09-28:** after 20 minutes idle, the notice appeared while the API woke up.
 - [x] Round 6 again on the live site (desktop Chrome DevTools against the deployed URL). No API responses
       are in Cache Storage. 2026-09-28: only the Workbox precache (app shell), with no `/api` responses.
 

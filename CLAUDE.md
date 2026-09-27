@@ -22,7 +22,7 @@
   cold start about 1 min). Deploy guide step 4 passed. Mobile/PWA Round 7 passed on Android 2026-09-28
   (install, standalone, layout, offline banner, update prompt, no API data in Cache Storage).
   iPhone not tested. "Waking up the server" notice (`WakingUpNotice.jsx`, `api/slowRequests.js`)
-  is unit-tested; on the phone it's only been seen with an awake API (no notice, as expected).
+  is unit-tested and was seen live on the phone after 20 minutes idle (2026-09-28).
 - **Project complete.** Optional next ideas: iPhone test; a "Try again" button for failed requests;
   a read-only demo account.
 - Deploying = push to `main` (Render auto-deploys; migrations run at start). Migrations must be backwards
