@@ -76,7 +76,8 @@ through in Swagger and then in the browser. Each item lists the expected status 
 [Auth](docs/auth-test-checklist.md) · [Tasks](docs/tasks-test-checklist.md) ·
 [Notes](docs/notes-test-checklist.md) · [Journal](docs/journal-test-checklist.md) ·
 [Dashboard](docs/dashboard-test-checklist.md) · [Pre-deploy](docs/pre-deploy-checklist.md) ·
-[Mobile + PWA](docs/mobile-pwa-test-checklist.md)
+[Mobile + PWA](docs/mobile-pwa-test-checklist.md) ·
+[TiDB Cloud](docs/tidb-test-checklist.md)
 
 **User isolation (IDOR) tests:** with two accounts, User B tries to read, edit, toggle, pin and delete User
 A's tasks, notes, tags and journal entries by guessing their ids. Every attempt must return **404**, the
@@ -198,12 +199,21 @@ CREATE DATABASE lifexash CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 SET GLOBAL tidb_enable_check_constraint = ON;  -- otherwise TiDB silently drops CHECK (mood 1-5)
 ```
 
-**Differences from MySQL** (from TiDB's documentation; to be confirmed on the live cluster): foreign keys with `ON DELETE CASCADE`, UNIQUE keys, ENUM,
-utf8mb4 and `ON UPDATE CURRENT_TIMESTAMP` behave the same. CHECK constraints are only kept if the
-setting above is on. The API validates mood 1–5 either way. Ids are unique but not consecutive (TiDB
-hands out ids in batches), and nothing in the app depends on consecutive ids. Idle connections are
-closed when the cluster scales down, so the connection pool checks connections before use and
-replaces them after 5 minutes.
+**Differences from MySQL:**
+- **Verified on TiDB:** `ON DELETE CASCADE` and utf8mb4 (emoji) behave the same as on MySQL.
+- **CHECK constraints** are only kept if the setting above is on. On Starter it can be turned on, and
+  then the mood CHECK is enforced. The API also validates mood 1–5.
+- **From TiDB's documentation, not yet tested on the cluster:** UNIQUE keys, ENUM and
+  `ON UPDATE CURRENT_TIMESTAMP` behave the same.
+- **Ids** are unique but not consecutive (TiDB hands out ids in batches), and nothing in the app
+  depends on consecutive ids.
+- **Idle connections** are closed when the cluster scales down, so the connection pool checks
+  connections before use and replaces them after 5 minutes.
+
+**Check a database:** `python -m scripts.verify_remote_db` checks whichever database `DATABASE_URL`
+points at. It covers TLS, tables and migrations, the mood CHECK, ON DELETE CASCADE and utf8mb4. It uses
+its own test user and removes it afterwards. It passed on TiDB Cloud on 2026-09-27. The full manual
+plan is the [TiDB checklist](docs/tidb-test-checklist.md).
 
 ## Backups
 

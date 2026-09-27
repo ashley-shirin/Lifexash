@@ -14,8 +14,10 @@
 - Mobile layout + PWA (bottom nav, 44 px touch targets, manifest + icons, service worker, offline banner,
   update prompt) is **done and tested** (Rounds 1–6) — see `docs/mobile-pwa-test-checklist.md`.
 - TiDB Cloud Starter support (verified TLS for remote DBs, pool_recycle, local-only backup scripts) is
-  **done and unit-tested**, but not yet run against a real TiDB cluster — see README "Production database".
-- Next: create the TiDB cluster (confirm CHECK constraint setting + ON DELETE CASCADE there), deploy,
+  **done**. The TiDB cluster exists (database `lifexash`, migrated to head, CHECK enforced), and
+  `python -m scripts.verify_remote_db` passed on it (2026-09-27). The rest of
+  `docs/tidb-test-checklist.md` (app, UNIQUE/ENUM/FK errors, idle, backup guard) hasn't been run yet.
+- Next: finish the TiDB checklist, deploy,
   then run Round 7 of the mobile/PWA checklist (real phones, needs HTTPS).
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
