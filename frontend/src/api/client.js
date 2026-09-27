@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { trackRequest } from "./slowRequests.js";
+
 const TOKEN_KEY = "lifexash_token";
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
@@ -18,6 +20,8 @@ client.interceptors.request.use((config) => {
   if (token && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Starts a 5 s timer for the "Waking up the server…" notice; stopped when the response arrives.
+  config.requestDone = trackRequest();
   return config;
 });
 
@@ -32,8 +36,12 @@ const AUTH_FORM_URLS = ["/auth/login", "/auth/register"];
 
 // Response interceptor: a 401 anywhere else means the token is missing, expired or invalid.
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    response.config.requestDone?.();
+    return response;
+  },
   (error) => {
+    error.config?.requestDone?.(); // an error also ends the request
     const isAuthForm = AUTH_FORM_URLS.includes(error.config?.url);
     if (error.response?.status === 401 && !isAuthForm && onUnauthorized) {
       onUnauthorized();

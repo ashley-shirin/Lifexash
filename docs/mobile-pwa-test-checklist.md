@@ -175,6 +175,23 @@ Installing needs a normal window, not Incognito.
 - [x] Airplane mode → the offline banner appears. Turn it off → the banner goes away.
 - [ ] Deploy a small change → open the installed app → "New version available · Reload" appears, and
       Reload shows the change. **Next:** do this after the current deploy.
+      The "waking up" notice (below) is a good change to deploy for this.
+- [ ] **"Waking up the server" notice, locally** (PC, `npm run dev`). DevTools → Network → throttling
+      dropdown → **Add…** → a custom profile with **Latency 8000 ms**, then select it. ("Slow 3G" adds only
+      about 2 s, which is under the 5 s limit.) Then:
+  - Reload the dashboard → after about 5 s a small blue notice appears at the bottom: "Waking up the
+    server… the first request after a quiet period can take up to a minute". It disappears as soon as the
+    data arrives. Nothing is retried: Network shows each request only once.
+  - The same on `/login`: log in → the notice appears after 5 s and disappears when you're logged in (or
+    when the error shows).
+  - At 375 px (device toolbar) the notice sits **above** the bottom bar and doesn't cover it. You can still
+    tap the bottom bar and buttons while it's shown.
+  - Back to **No throttling** → normal use never shows it (requests take well under 5 s).
+  - Known limit: while the full-screen task form is open, the notice is hidden behind it (a modal
+    `<dialog>` is drawn above everything else). Saving still works.
+- [ ] **"Waking up the server" notice, live** (after deploy): leave the site unused for 20+ minutes (the free
+      API sleeps after about 15), then open the installed app → the notice appears while the API wakes up
+      and goes away when the dashboard loads.
 - [ ] Round 6 again on the live site (desktop Chrome DevTools against the deployed URL). No API responses
       are in Cache Storage.
 

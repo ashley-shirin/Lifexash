@@ -870,6 +870,28 @@ a.calendar-day:hover {
   padding: 0.35rem 0.9rem;
 }
 
+/* "Waking up the server…": floats at the bottom; pointer-events: none so it never blocks a tap */
+.wake-notice {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  z-index: 20; /* above the bottom nav (10) */
+  box-sizing: border-box;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  margin: 0;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #1e3a8a;
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
 /* Bottom navigation: only shown on phones (see the media query below) */
 .bottom-nav {
   display: none;
@@ -1099,5 +1121,10 @@ a.calendar-day:hover {
 
   .weekly-chart {
     padding: 0.75rem;
+  }
+
+  /* Sit just above the bottom nav (56 px + the iPhone home-bar area), never on top of it */
+  .wake-notice {
+    bottom: calc(56px + env(safe-area-inset-bottom) + 0.5rem);
   }
 }

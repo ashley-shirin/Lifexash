@@ -44,7 +44,7 @@ and ran the test plans, and debugged the issues they found (one of them is descr
 | Database | MySQL 9 locally, TiDB Cloud Starter (MySQL-compatible) in production |
 | Hosting  | Render: static site (frontend) and web service (API, free plan, Singapore). Deployment in [`render.yaml`](render.yaml) |
 | Auth     | JWT (PyJWT), bcrypt password hashing |
-| Tests    | pytest, plus manual test checklists (Swagger and browser) |
+| Tests    | pytest (backend), Node's built-in test runner (`npm test`, frontend logic), plus manual test checklists (Swagger and browser) |
 
 ## Architecture
 

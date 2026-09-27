@@ -82,6 +82,7 @@ Layering rule: routers only handle HTTP, services hold logic, models are tables 
 Backend (from `backend/`): `.\.venv\Scripts\Activate.ps1` then `uvicorn app.main:app --reload`
 → http://localhost:8000 (Swagger at /docs)
 Frontend (from `frontend/`): `npm run dev`  → http://localhost:5173
+Frontend unit tests: `npm test` (Node's built-in `node --test`, no extra package; files `*.test.js`).
 
 Service worker / PWA testing: it is **off in `npm run dev`**. Use `npm run build` then `npm run preview`
 → http://localhost:4173, and add `http://localhost:4173` to `CORS_ORIGINS` in `backend/.env` (comma-separated).
