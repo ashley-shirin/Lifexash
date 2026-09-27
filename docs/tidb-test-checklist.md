@@ -1,8 +1,8 @@
 # TiDB Cloud Starter: manual test checklist
 
-Status: Rounds 1, 4, 5 and 6 passed on 2026-09-27 against the real TiDB Starter cluster (AWS Singapore).
-Rounds 2–3 were skipped (covered by `verify_remote_db.py` and Round 4). **Open:** re-run `verify_remote_db.py`
-against TiDB. The earlier "passed" run was most likely against local MySQL (see Finding 1).
+Status: passed on 2026-09-27 against the real TiDB Starter cluster (AWS Singapore, TiDB v8.5.3-serverless).
+The automated check (`verify_remote_db.py`) passed, and so did Rounds 1, 4, 5 and 6. Rounds 2–3 were skipped
+(covered by the automated check and Round 4).
 
 Proves that the backend works on the production database, TiDB Cloud Starter (MySQL-compatible, TLS
 only), before deploying. It covers:
@@ -64,16 +64,17 @@ uses its own test user and deletes it afterwards. Real data is only read. Exit c
 line must say **`on gateway01…:4000, REMOTE database (verified TLS)`**. If it says `LOCAL database`, it
 didn't test TiDB.
 
-**Re-run needed:** these boxes were first ticked from a run that most likely hit local MySQL (Finding 1).
-Cascade is confirmed on TiDB separately by Round 4 (last item). CHECK, utf8mb4 and collation are not
-confirmed on TiDB until this re-run.
+**Run on TiDB on 2026-09-27**, after `alembic upgrade head`. The output started with
+`Database: lifexash on gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000`, server `8.0.11-TiDB-v8.5.3-serverless`,
+and ended with "All checks passed." That run used the script version from before the LOCAL/REMOTE last line
+was added, so the first line is the proof of the target.
 
-- [ ] TLS in use, with the verified certifi settings (server reports a TiDB version and a TLS cipher).
-- [ ] All 7 tables exist, with collation `utf8mb4_0900_ai_ci`. `alembic_version` is at head (`81878a6609ca`).
-- [ ] mood CHECK constraint: enforced (mood 6 rejected with error 3819), or not. Record which.
-- [ ] Deleting a user CASCADE-deletes their tasks, notes, tags, note_tags and journal entries (all 1 → 0).
-- [ ] utf8mb4: `utf8mb4 check 😀🎉 ñ 日本` saved and read back unchanged.
-- [ ] Test user removed afterwards.
+- [x] TLS in use, with the verified certifi settings (server reports a TiDB version and a TLS cipher): `TLS_AES_128_GCM_SHA256`.
+- [x] All 7 tables exist, with collation `utf8mb4_0900_ai_ci`. `alembic_version` is at head (`81878a6609ca`).
+- [x] mood CHECK constraint: **enforced** (mood 6 rejected with error 3819).
+- [x] Deleting a user CASCADE-deletes their tasks, notes, tags, note_tags and journal entries (all 1 → 0).
+- [x] utf8mb4: `utf8mb4 check 😀🎉 ñ 日本` saved and read back unchanged.
+- [x] Test user removed afterwards.
 
 The manual rounds below are ticked only where the script fully covered them. They also test things
 the script doesn't: TiDB refusing unencrypted connections, the certificate hostname check, UNIQUE/ENUM/FK
@@ -131,8 +132,8 @@ errors, the app itself, idle connections and the backup guard.
 
 ## Round 2: Table definitions (skipped, covered)
 
-Skipped on 2026-09-27: covered by `verify_remote_db.py` (tables, collation, CHECK) and Round 4 (cascade).
-It only counts as covered once the re-run above is done. Migrations moved to Setup.
+Skipped on 2026-09-27: covered by the automated check (tables, collation, CHECK enforced, cascade) and
+Round 4 (cascade through the app). Migrations moved to Setup.
 
 - [ ] `SHOW CREATE TABLE journal_entries;` →
   - `COLLATE=utf8mb4_0900_ai_ci`
@@ -147,7 +148,7 @@ It only counts as covered once the re-run above is done. Migrations moved to Set
 ## Round 3: Constraints (SQL Editor) (skipped, covered)
 
 Skipped on 2026-09-27: UNIQUE was tested through the app in Round 4 (409s), cascade in Round 4 (last
-item), and CHECK and utf8mb4 by `verify_remote_db.py` (re-run needed). The ENUM and FK errors (1265, 1452)
+item), and CHECK, cascade and utf8mb4 by the automated check. The ENUM and FK errors (1265, 1452)
 were not tested on TiDB. The API validates both before the database sees them.
 
 Uses a throw-away user. Write down its id and type it in as `<N>` below. Session variables like `@u`
@@ -257,13 +258,14 @@ Record anything that behaved differently from the expected results above.
    - **Actions:**
      - Setup now starts with a host check and `alembic upgrade head`.
      - `verify_remote_db.py` now names the database and LOCAL/REMOTE in its final line.
-     - The script's boxes are unticked until it's re-run against TiDB.
-     - README / CLAUDE.md no longer claim that CHECK is enforced on Starter.
+     - The script was then re-run against TiDB (after `alembic upgrade head`), and every check passed there
+       (see the automated check section).
 2. **`seed_demo` said "Would add N tasks …" and then "Done." on a real run.** Fixed: a real run now prints
    "Added N tasks and M journal entries." only after the commit. "Would add …" is kept for the dry run
    (without `--yes`). There's a unit test in `tests/test_seed_demo.py`.
 3. **`seed_demo` skips days that already have data**, so on a non-empty account the dashboard doesn't show 3 of 5 /
    60 / streak 7. The Round 4 note now says the numbers assume an empty account, and the script prints a
    note when it skips days.
-4. `SET GLOBAL tidb_enable_check_constraint = ON` was accepted on Starter (Setup). Whether the mood CHECK is
-   **enforced** on the TiDB tables is confirmed by the `verify_remote_db.py` re-run.
+4. **The CHECK constraint is enforced on TiDB Starter**, provided `SET GLOBAL tidb_enable_check_constraint = ON`
+   is set **before** `alembic upgrade head`. `verify_remote_db.py` on TiDB: mood 6 was rejected with error 3819,
+   the same as on local MySQL.

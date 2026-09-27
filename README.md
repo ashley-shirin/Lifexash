@@ -200,12 +200,12 @@ SET GLOBAL tidb_enable_check_constraint = ON;  -- otherwise TiDB silently drops 
 ```
 
 **Differences from MySQL:**
-- **Tested on the TiDB cluster** (through the app): `ON DELETE CASCADE` and the UNIQUE keys (409 errors)
-  behave the same as on MySQL.
-- **CHECK constraints** are only kept if the setting above is on (Starter accepts it). The API also
-  validates mood 1–5, so the app is safe either way.
-- **From TiDB's documentation, not yet tested on the cluster:** ENUM, utf8mb4 (emoji) and
-  `ON UPDATE CURRENT_TIMESTAMP` behave the same. The `verify_remote_db` run below confirms utf8mb4 and CHECK.
+- **Tested on the TiDB cluster:** `ON DELETE CASCADE`, the UNIQUE keys (409 errors), utf8mb4 (emoji) and the
+  table collation behave the same as on MySQL.
+- **CHECK enforced on TiDB Starter** (with `tidb_enable_check_constraint = ON` before migrating): mood 6 is
+  rejected with error 3819. Without that setting TiDB silently drops CHECK constraints. The API also
+  validates mood 1–5.
+- **From TiDB's documentation, not tested on the cluster:** ENUM and `ON UPDATE CURRENT_TIMESTAMP` behave the same.
 - **Ids** are unique but not consecutive (TiDB hands out ids in batches), and nothing in the app
   depends on consecutive ids.
 - **Idle connections** are closed when the cluster scales down, so the connection pool checks
@@ -251,4 +251,4 @@ mysql --default-character-set=utf8mb4 -u your_db_user -p -e "source C:/Users/<yo
 
 ## Roadmap
 
-- Deployment
+- Deployment on Render: see the [deploy guide](docs/deploy-guide.md) and [`render.yaml`](render.yaml)

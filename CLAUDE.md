@@ -15,9 +15,10 @@
   update prompt) is **done and tested** (Rounds 1–6) — see `docs/mobile-pwa-test-checklist.md`.
 - TiDB Cloud Starter support (verified TLS for remote DBs, pool_recycle, local-only backup scripts) is
   **done and tested** on the real cluster (AWS Singapore, database `lifexash`, migrated to head):
-  Rounds 1, 4, 5, 6 of `docs/tidb-test-checklist.md` passed 2026-09-27. **Open:** re-run
-  `python -m scripts.verify_remote_db` against TiDB (the earlier "pass" hit local MySQL — Finding 1).
-- Next: that re-run, then deploy with Render (`render.yaml`, `docs/deploy-guide.md`),
+  `verify_remote_db.py` and Rounds 1, 4, 5, 6 of `docs/tidb-test-checklist.md` passed 2026-09-27.
+  CHECK enforced on TiDB Starter (with tidb_enable_check_constraint = ON before migrating).
+- Deploy config is ready: `render.yaml` (Blueprint: API in Singapore + static site) and `docs/deploy-guide.md`.
+- Next: deploy with Render following `docs/deploy-guide.md`,
   then run Round 7 of the mobile/PWA checklist (real phones, needs HTTPS).
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
@@ -62,8 +63,8 @@ Layering rule: routers only handle HTTP, services hold logic, models are tables 
 - Create DB engines only with `make_engine()` (`core/database.py`): it adds required, verified TLS
   (certifi CA bundle) for any host other than localhost / 127.0.0.1 / ::1, and UTC sessions. Never
   disable certificate checks or put SSL options in `DATABASE_URL`.
-- TiDB differences: CHECK constraints are dropped unless `tidb_enable_check_constraint` is ON (keep
-  validating in Pydantic); ids are unique but not consecutive (never depend on id order or gaps);
+- TiDB differences: CHECK constraints are dropped unless `tidb_enable_check_constraint` is ON before
+  migrating (it is on our cluster, and CHECK is enforced there; keep validating in Pydantic anyway); ids are unique but not consecutive (never depend on id order or gaps);
   ENUM values can only be appended.
 - `scripts/backup_db.py` and `scripts/restore_test.py` are for local MySQL only (they refuse remote hosts).
 - Before any command meant for TiDB, check the target in the same terminal:
