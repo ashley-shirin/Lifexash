@@ -9,7 +9,6 @@ per-user data isolation, database migrations and a React frontend. I built it wi
 and ran the test plans, and debugged the issues they found (one of them is described below).
 
 ![LifeXash dashboard](docs/screenshots/dashboard.png)
-<!-- TODO: add the dashboard screenshot at docs/screenshots/dashboard.png -->
 
 ## Features
 
