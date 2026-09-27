@@ -13,10 +13,14 @@
   restore test) is **done and tested** — see `docs/pre-deploy-checklist.md`.
 - Mobile layout + PWA (bottom nav, 44 px touch targets, manifest + icons, service worker, offline banner,
   update prompt) is **done and tested** (Rounds 1–6) — see `docs/mobile-pwa-test-checklist.md`.
-- Next: deploy, then run Round 7 of the mobile/PWA checklist (real phones, needs HTTPS).
+- TiDB Cloud Starter support (verified TLS for remote DBs, pool_recycle, local-only backup scripts) is
+  **done and unit-tested**, but not yet run against a real TiDB cluster — see README "Production database".
+- Next: create the TiDB cluster (confirm CHECK constraint setting + ON DELETE CASCADE there), deploy,
+  then run Round 7 of the mobile/PWA checklist (real phones, needs HTTPS).
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
-Stack: React (Vite) · FastAPI · MySQL 9.7 · SQLAlchemy 2.0 · Alembic · JWT auth.
+Stack: React (Vite) · FastAPI · MySQL 9.7 (local) / TiDB Cloud Starter (production) · SQLAlchemy 2.0 ·
+Alembic · JWT auth.
 
 ## Folder structure
 
@@ -53,6 +57,13 @@ Layering rule: routers only handle HTTP, services hold logic, models are tables 
   (don't use `toISOString()`, it converts to UTC and can shift the date).
 - The service worker caches **only the app shell** (built HTML, JS, CSS, icons). **Never cache API
   responses** — no `runtimeCaching` in `vite.config.js`. They're private user data (a shared device) and go stale.
+- Create DB engines only with `make_engine()` (`core/database.py`): it adds required, verified TLS
+  (certifi CA bundle) for any host other than localhost / 127.0.0.1 / ::1, and UTC sessions. Never
+  disable certificate checks or put SSL options in `DATABASE_URL`.
+- TiDB differences: CHECK constraints are dropped unless `tidb_enable_check_constraint` is ON (keep
+  validating in Pydantic); ids are unique but not consecutive (never depend on id order or gaps);
+  ENUM values can only be appended.
+- `scripts/backup_db.py` and `scripts/restore_test.py` are for local MySQL only (they refuse remote hosts).
 - Mobile styles live in the `@media (max-width: 640px)` block at the end of `index.css`; touch targets ≥ 44 px.
 
 ## Run
