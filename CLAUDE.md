@@ -11,7 +11,9 @@
 - All 5 features are done and tested.
 - Pre-deploy polish (UTC timestamps with "Z", config from env only, build check, README, DB backup +
   restore test) is **done and tested** — see `docs/pre-deploy-checklist.md`.
-- Next: mobile layout + PWA, then deploy.
+- Mobile layout + PWA (bottom nav, 44 px touch targets, manifest + icons, service worker, offline banner,
+  update prompt) is **done and tested** (Rounds 1–6) — see `docs/mobile-pwa-test-checklist.md`.
+- Next: deploy, then run Round 7 of the mobile/PWA checklist (real phones, needs HTTPS).
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
 Stack: React (Vite) · FastAPI · MySQL 9.7 · SQLAlchemy 2.0 · Alembic · JWT auth.
@@ -49,12 +51,19 @@ Layering rule: routers only handle HTTP, services hold logic, models are tables 
 - Never store score or streak — compute them from existing data when requested.
 - Frontend always sends dates as `YYYY-MM-DD` for the user's **local** day
   (don't use `toISOString()`, it converts to UTC and can shift the date).
+- The service worker caches **only the app shell** (built HTML, JS, CSS, icons). **Never cache API
+  responses** — no `runtimeCaching` in `vite.config.js`. They're private user data (a shared device) and go stale.
+- Mobile styles live in the `@media (max-width: 640px)` block at the end of `index.css`; touch targets ≥ 44 px.
 
 ## Run
 
 Backend (from `backend/`): `.\.venv\Scripts\Activate.ps1` then `uvicorn app.main:app --reload`
 → http://localhost:8000 (Swagger at /docs)
 Frontend (from `frontend/`): `npm run dev`  → http://localhost:5173
+
+Service worker / PWA testing: it is **off in `npm run dev`**. Use `npm run build` then `npm run preview`
+→ http://localhost:4173, and add `http://localhost:4173` to `CORS_ORIGINS` in `backend/.env` (comma-separated).
+Icons: `node scripts/make-icons.mjs` regenerates `frontend/public/` icons.
 
 Migrations (from `backend/`, venv active):
 ```powershell
