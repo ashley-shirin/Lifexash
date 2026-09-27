@@ -36,7 +36,7 @@ and ran the test plans, and debugged the issues they found (one of them is descr
 |----------|------------|
 | Frontend | React 19, Vite, React Router, Axios, vite-plugin-pwa (Workbox) |
 | Backend  | FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic |
-| Database | MySQL 9 |
+| Database | MySQL 9 locally, TiDB Cloud Starter (MySQL-compatible) in production |
 | Auth     | JWT (PyJWT), bcrypt password hashing |
 | Tests    | pytest, plus manual test checklists (Swagger and browser) |
 
@@ -159,7 +159,7 @@ no image library.
 
 | Variable | Where | Required | Meaning |
 |----------|-------|----------|---------|
-| `DATABASE_URL` | backend | yes | SQLAlchemy URL, e.g. `mysql+pymysql://user:pw@host:3306/lifexash?charset=utf8mb4` |
+| `DATABASE_URL` | backend | yes | SQLAlchemy URL, e.g. `mysql+pymysql://user:pw@host:3306/lifexash?charset=utf8mb4`. Any host other than localhost gets verified TLS automatically |
 | `JWT_SECRET` | backend | yes | Random string, at least 32 characters |
 | `JWT_EXPIRE_MINUTES` | backend | no (60) | How long a login lasts |
 | `CORS_ORIGINS` | backend | no (`http://localhost:5173`) | Comma-separated frontend URLs allowed to call the API |
@@ -175,7 +175,40 @@ alembic revision --autogenerate -m "describe the change"
 alembic upgrade head
 ```
 
+## Production database (TiDB Cloud Starter)
+
+TiDB is a MySQL-compatible database. Its free Starter tier only accepts encrypted (TLS) connections.
+
+**Connection:** the backend turns on TLS for every database host that isn't `localhost`, `127.0.0.1` or
+`::1`. The server's certificate must be signed by a CA in [certifi](https://pypi.org/project/certifi/)'s
+bundle and issued for that host name, or the connection is refused. Local MySQL works as before.
+`DATABASE_URL` looks like this (take the host and user prefix from TiDB Cloud's **Connect** dialog):
+
+```
+mysql+pymysql://<PREFIX>.<USER>:<PASSWORD>@gateway01.<REGION>.prod.aws.tidbcloud.com:4000/lifexash?charset=utf8mb4
+```
+
+URL-encode special characters in the password:
+`python -c "from urllib.parse import quote_plus; print(quote_plus('the password'))"`.
+
+**One-time setup** (TiDB Cloud SQL editor), before `alembic upgrade head`:
+
+```sql
+CREATE DATABASE lifexash CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+SET GLOBAL tidb_enable_check_constraint = ON;  -- otherwise TiDB silently drops CHECK (mood 1-5)
+```
+
+**Differences from MySQL** (from TiDB's documentation; to be confirmed on the live cluster): foreign keys with `ON DELETE CASCADE`, UNIQUE keys, ENUM,
+utf8mb4 and `ON UPDATE CURRENT_TIMESTAMP` behave the same. CHECK constraints are only kept if the
+setting above is on. The API validates mood 1–5 either way. Ids are unique but not consecutive (TiDB
+hands out ids in batches), and nothing in the app depends on consecutive ids. Idle connections are
+closed when the cluster scales down, so the connection pool checks connections before use and
+replaces them after 5 minutes.
+
 ## Backups
+
+The backup scripts are for a **local MySQL only**. They refuse to run when `DATABASE_URL` points
+anywhere else. For TiDB Cloud, use its own backup and export features.
 
 **Back up** (from `backend/`, venv active):
 

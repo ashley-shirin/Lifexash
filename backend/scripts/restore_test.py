@@ -4,8 +4,9 @@ Run from backend/ (venv active):
     python -m scripts.restore_test                     # tests the newest backup
     python -m scripts.restore_test path\\to\\file.sql    # tests a specific backup
 
-Safety: the real database is only READ (row counts). The backup is restored into lifexash_restore_test,
-which is always dropped at the end. Needs this grant once (as root):
+Safety: local MySQL only (see db_url() in backup_db.py). The real database is only READ (row counts).
+The backup is restored into lifexash_restore_test, which is always dropped at the end.
+Needs this grant once (as root):
     GRANT ALL PRIVILEGES ON `lifexash_restore_test`.* TO 'LifeXash'@'localhost';
 """
 

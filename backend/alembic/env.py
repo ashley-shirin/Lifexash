@@ -1,11 +1,11 @@
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import create_engine, pool
+from sqlalchemy import pool
 
 import app.models  # noqa: F401  (registers every table on Base.metadata)
 from app.core.config import settings
-from app.core.database import Base, use_utc
+from app.core.database import Base, make_engine
 
 config = context.config
 
@@ -30,8 +30,8 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Connect to the database from .env and apply migrations."""
-    connectable = create_engine(settings.DATABASE_URL, poolclass=pool.NullPool)
-    use_utc(connectable)  # same UTC session as the app
+    # Same TLS + UTC session as the app. NullPool: one connection, closed when migrations finish.
+    connectable = make_engine(settings.DATABASE_URL, poolclass=pool.NullPool)
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
         with context.begin_transaction():

@@ -9,6 +9,8 @@ Run from backend/ (venv active):
 - The password never goes on the command line and is never printed: mysqldump reads it from a temporary
   option file that only exists while the dump runs.
 - Keeps the 10 newest backups and deletes older ones.
+- LOCAL MySQL only: it refuses to run when DATABASE_URL points at another host (e.g. TiDB Cloud). The
+  mysqldump options are MySQL-specific and connect without TLS; use TiDB Cloud's own backups there.
 
 To check that a backup really restores, run:  python -m scripts.restore_test
 """
@@ -28,6 +30,7 @@ from pathlib import Path
 from sqlalchemy.engine import URL, make_url
 
 from app.core.config import settings
+from app.core.database import LOCAL_HOSTS
 
 BACKUP_DIR = Path(os.environ["USERPROFILE"]) / "Documents" / "LifeXash-backups"
 BACKUP_NAME = re.compile(r"^lifexash_\d{4}-\d{2}-\d{2}_\d{4}\.sql$")  # only these files are ever deleted
@@ -46,8 +49,13 @@ def find_mysql_tool(name: str) -> str:
 
 
 def db_url() -> URL:
+    """DATABASE_URL, split into parts. Stops the script unless it points at a database on this machine."""
     # make_url splits the URL into parts and decodes %-escaped characters in the password.
-    return make_url(settings.DATABASE_URL)
+    url = make_url(settings.DATABASE_URL)
+    if url.host not in LOCAL_HOSTS:
+        # Also protects restore_test.py (it uses this function): it must never create databases in the cloud.
+        sys.exit(f"ERROR: DATABASE_URL points at {url.host}, not a local MySQL. These scripts are for local MySQL only.")
+    return url
 
 
 def _option_value(value: str) -> str:

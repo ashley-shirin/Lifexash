@@ -2,6 +2,7 @@ fastapi==0.141.1
 uvicorn[standard]==0.53.0
 SQLAlchemy==2.0.54
 PyMySQL==1.2.3
+certifi==2026.7.22  # CA bundle for TLS to a remote database (TiDB Cloud)
 cryptography==50.0.1
 alembic==1.20.0
 pydantic-settings==2.15.0

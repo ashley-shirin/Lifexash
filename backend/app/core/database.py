@@ -1,6 +1,9 @@
+import ssl
 from collections.abc import Generator
+from typing import Any
 
-from sqlalchemy import Engine, MetaData, create_engine, event
+import certifi
+from sqlalchemy import Engine, MetaData, create_engine, event, make_url
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import settings
@@ -36,8 +39,38 @@ def use_utc(engine: Engine) -> None:
             cursor.execute("SET time_zone = '+00:00'")
 
 
-engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
-use_utc(engine)
+# A database on this machine gets no TLS settings; any other host gets required, verified TLS.
+LOCAL_HOSTS = {None, "", "localhost", "127.0.0.1", "::1"}
+
+
+def connect_args_for(url: str) -> dict[str, Any]:
+    """Extra PyMySQL connect() arguments: verified TLS for every remote database, nothing for a local one.
+
+    Local: PyMySQL's default ("preferred") mode encrypts if the server offers TLS, without checking the
+    certificate, and falls back to plain if it doesn't. So a local MySQL works with or without TLS.
+    Remote (e.g. TiDB Cloud, which refuses unencrypted connections): the server's certificate must be
+    signed by a trusted CA from certifi's bundle (Mozilla's CA list, the same on every OS), and must
+    be issued for the host name we connect to, or the connection is refused (no fallback to plain).
+    So nobody in between can read or fake the traffic.
+    TLS is on by default, so it can't be forgotten in production.
+    """
+    if make_url(url).host in LOCAL_HOSTS:
+        return {}
+    # create_default_context: verify_mode=CERT_REQUIRED and check_hostname=True.
+    return {"ssl": ssl.create_default_context(cafile=certifi.where())}
+
+
+def make_engine(url: str, **kwargs: Any) -> Engine:
+    """Create an engine with TLS when needed and every session in UTC. Used by the app and by Alembic."""
+    new_engine = create_engine(url, connect_args=connect_args_for(url), **kwargs)
+    use_utc(new_engine)
+    return new_engine
+
+
+# pool_pre_ping: test a pooled connection before using it (the server may have closed it).
+# pool_recycle: replace connections older than 5 minutes. TiDB Cloud Starter closes idle connections
+# when it scales down, so we don't want to keep old ones around.
+engine = make_engine(settings.DATABASE_URL, pool_pre_ping=True, pool_recycle=300)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
