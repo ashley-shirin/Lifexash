@@ -17,9 +17,14 @@
   **done and tested** on the real cluster (AWS Singapore, database `lifexash`, migrated to head):
   `verify_remote_db.py` and Rounds 1, 4, 5, 6 of `docs/tidb-test-checklist.md` passed 2026-09-27.
   CHECK enforced on TiDB Starter (with tidb_enable_check_constraint = ON before migrating).
-- Deploy config is ready: `render.yaml` (Blueprint: API in Singapore + static site) and `docs/deploy-guide.md`.
-- Next: deploy with Render following `docs/deploy-guide.md`,
-  then run Round 7 of the mobile/PWA checklist (real phones, needs HTTPS).
+- **Deployed** (2026-09-27) with Render (`render.yaml`, `docs/deploy-guide.md`):
+  site https://lifexash-web.onrender.com, API https://lifexash-api.onrender.com (free plan, Singapore;
+  cold start about 1 min). Deploy guide step 4 passed. Mobile/PWA Round 7 passed on Android 2026-09-28;
+  iPhone not tested.
+- Next: the update-prompt check on the phone (deploy a small change, then "New version available · Reload"
+  in the installed app). Then, when possible, iPhone and Round 6 (Cache Storage) on the live site.
+- Deploying = push to `main` (Render auto-deploys; migrations run at start). Migrations must be backwards
+  compatible (the old version serves until the new one is healthy).
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
 Stack: React (Vite) · FastAPI · MySQL 9.7 (local) / TiDB Cloud Starter (production) · SQLAlchemy 2.0 ·

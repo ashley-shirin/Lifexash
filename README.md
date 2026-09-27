@@ -1,5 +1,10 @@
 # LifeXash
 
+**Live demo: <https://lifexash-web.onrender.com>.** Register with any email to try it; there is no
+shared demo account. The API runs on Render's free plan and sleeps when nobody uses it, so **the first
+request after a quiet period can take about a minute** while it wakes up. After that it's quick. It's a
+portfolio project, so please don't store anything private in it.
+
 LifeXash is a personal productivity web app that brings three daily habits into one place: a **daily
 planner** for tasks, **notes** organised with tags, and a **mood journal**. A dashboard ties them together
 with today's completion score, a streak of productive days and a 7-day mood trend. It's a full-stack
@@ -37,6 +42,7 @@ and ran the test plans, and debugged the issues they found (one of them is descr
 | Frontend | React 19, Vite, React Router, Axios, vite-plugin-pwa (Workbox) |
 | Backend  | FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic |
 | Database | MySQL 9 locally, TiDB Cloud Starter (MySQL-compatible) in production |
+| Hosting  | Render: static site (frontend) and web service (API, free plan, Singapore). Deployment in [`render.yaml`](render.yaml) |
 | Auth     | JWT (PyJWT), bcrypt password hashing |
 | Tests    | pytest, plus manual test checklists (Swagger and browser) |
 
@@ -68,6 +74,27 @@ flowchart LR
   copy would go out of date. Offline, the app says that changes can't be saved instead of showing old data.
 - **Config from the environment only:** the app refuses to start without `DATABASE_URL`, or if `JWT_SECRET`
   is missing or shorter than 32 characters.
+
+### Production
+
+```mermaid
+flowchart LR
+    User["Browser or<br/>installed PWA"] -- "HTTPS" --> Web["Render static site<br/>lifexash-web<br/>(global CDN)"]
+    User -- "HTTPS + JSON<br/>Bearer JWT" --> Api["Render web service<br/>lifexash-api<br/>(Singapore, free plan)"]
+    Api -- "TLS, certificate verified" --> DB[("TiDB Cloud Starter<br/>AWS Singapore")]
+```
+
+- **Frontend:** the React build and service worker are a Render **static site**, served from a CDN. Unknown
+  paths like `/notes/5` are rewritten to `index.html`, and `index.html`, `/` and `sw.js` are sent with
+  `Cache-Control: no-cache`, so a new deploy reaches users.
+- **API:** FastAPI runs as a Render **web service** in Singapore, next to the database. Each start runs
+  `alembic upgrade head` before Uvicorn, and Render only switches to a new deploy after `/api/health`
+  answers. On the free plan it sleeps after about 15 idle minutes, which causes the cold start mentioned at the top.
+- **Database:** TiDB Cloud Starter (free, MySQL-compatible) in AWS Singapore. The API connects over TLS and
+  verifies the server's certificate (see [Production database](#production-database-tidb-cloud-starter)).
+- **Secrets** (`DATABASE_URL`, `JWT_SECRET`) are only in Render's environment settings, never in the repo.
+- **Tested live:** the [deploy guide](docs/deploy-guide.md)'s live checks passed on 2026-09-27, and the
+  installed PWA passed on an Android phone on 2026-09-28. It hasn't been tested on an iPhone yet.
 
 ## How I tested it
 
@@ -251,4 +278,4 @@ mysql --default-character-set=utf8mb4 -u your_db_user -p -e "source C:/Users/<yo
 
 ## Roadmap
 
-- Deployment on Render: see the [deploy guide](docs/deploy-guide.md) and [`render.yaml`](render.yaml)
+- Test the installed app on an iPhone (Safari) and the "New version available" prompt on a phone

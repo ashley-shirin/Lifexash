@@ -69,19 +69,22 @@ says `VITE_API_URL is missing`, the variable wasn't set. That's our own check in
 
 ## 4. Check the live site
 
-PowerShell (`curl.exe`, not the `curl` alias):
+PowerShell (`curl.exe`, not the `curl` alias). **Passed on 2026-09-27** for https://lifexash-web.onrender.com and
+https://lifexash-api.onrender.com.
 
-- [ ] `curl.exe https://lifexash-api.onrender.com/api/health` → `{"status":"ok"}`.
-- [ ] `curl.exe -I https://lifexash-web.onrender.com/sw.js` → `cache-control: no-cache`.
-- [ ] `curl.exe -I https://lifexash-web.onrender.com/index.html` → `cache-control: no-cache`.
-- [ ] `curl.exe -I https://lifexash-web.onrender.com/` → `cache-control: no-cache`. (Render's docs don't say
-      whether a header on `/index.html` also covers `/`, which is why `render.yaml` sets both. Record what you see.)
-- [ ] Deep link: open `https://lifexash-web.onrender.com/notes/5` in a **new private window** → the app loads
+- [x] `curl.exe https://lifexash-api.onrender.com/api/health` → `{"status":"ok"}`.
+- [x] `curl.exe -I https://lifexash-web.onrender.com/sw.js` → `cache-control: no-cache`.
+- [x] `curl.exe -I https://lifexash-web.onrender.com/index.html` → `cache-control: no-cache`.
+- [x] `curl.exe -I https://lifexash-web.onrender.com/` → `cache-control: no-cache`. (Render's docs don't say
+      whether a header on `/index.html` also covers `/`, which is why `render.yaml` sets both.)
+      **Result 2026-09-27:** `/` also gets `cache-control: no-cache`.
+- [x] Deep link: open `https://lifexash-web.onrender.com/notes/5` in a **new private window** → the app loads
       (login page or "Note not found"), not Render's 404. That proves the SPA rewrite works.
-- [ ] Register, log in, add a task, write a note and a journal entry, reload → the data is still there (it's in TiDB).
-- [ ] DevTools → Console: no CORS errors. Network: API calls go to `lifexash-api.onrender.com/api/…`.
+- [x] Register, log in, add a task, write a note and a journal entry, reload → the data is still there (it's in TiDB).
+- [x] DevTools → Console: no CORS errors. Network: API calls go to `lifexash-api.onrender.com/api/…`.
 - [ ] Then run **Round 7** of the [mobile/PWA checklist](mobile-pwa-test-checklist.md) (real phones over HTTPS),
-      and Round 6 again on the live site (no API responses in Cache Storage).
+      and Round 6 again on the live site (no API responses in Cache Storage). Round 7 is partly done: Android
+      passed on 2026-09-28, iPhone and the update prompt are still open.
 
 ## Everyday use
 

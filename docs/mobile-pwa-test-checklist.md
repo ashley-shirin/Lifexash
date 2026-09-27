@@ -1,6 +1,7 @@
 # Mobile layout + PWA: manual test checklist
 
-Status: Rounds 1–6 passed on 2026-09-27. Round 7 runs after deploy.
+Status: Rounds 1–6 passed on 2026-09-27. Round 7 partly passed on Android (Chrome) on 2026-09-28 against
+https://lifexash-web.onrender.com. iPhone was not tested. The update prompt check on the phone is still open.
 
 Covers the `feature/mobile-pwa` changes: phone layout (bottom nav, 44 px touch targets, full-screen task
 modal, compact journal calendar), the web app manifest and icons, the service worker (app shell only),
@@ -154,29 +155,31 @@ Installing needs a normal window, not Incognito.
 - [x] Shared-device check: log out → Cache Storage still contains only the app shell. No notes, tasks or
       journal text are left on the device.
 
-## Round 7: After deploy (needs HTTPS)
+## Round 7: After deploy (needs HTTPS). Android passed 2026-09-28, iPhone not tested
 
 **Android (Chrome)**
-- [ ] Open the site → ⋮ → **Install app** (or the install banner) → the icon on the home screen is the LX icon,
+- [x] Open the site → ⋮ → **Install app** (or the install banner) → the icon on the home screen is the LX icon,
       shaped by the phone's mask (circle or squircle) with nothing cut off.
-- [ ] Opening it from the home screen → full screen, no address bar, starts on the dashboard, and the status
-      bar is indigo.
+- [x] Opening it from the home screen → full screen, no address bar, starts on the dashboard, and the status
+      bar is indigo. (Standalone and the indigo bar were confirmed. The start page wasn't recorded separately.)
 
-**iPhone (Safari)**
+**iPhone (Safari): not tested**
 - [ ] Share → **Add to Home Screen** → the LX (apple-touch-icon) appears. It opens without Safari's address bar.
 - [ ] The bottom bar sits above the home-indicator line (safe area), and nothing is hidden behind it.
 - [ ] Tapping inputs doesn't zoom the page in.
 
-**Both phones**
+**Both phones** (only Android was tested)
 - [ ] Repeat the Round 1 checks with a real finger: every button is easy to hit, and the calendar emojis are visible.
-- [ ] Airplane mode → the offline banner appears. Turn it off → the banner goes away.
+      Partly checked on Android: the bottom bar works, the task form is full screen, and tapping inputs doesn't
+      zoom. The calendar emojis weren't recorded.
+- [x] Airplane mode → the offline banner appears. Turn it off → the banner goes away.
 - [ ] Deploy a small change → open the installed app → "New version available · Reload" appears, and
-      Reload shows the change.
+      Reload shows the change. **Next:** do this after the current deploy.
 - [ ] Round 6 again on the live site (desktop Chrome DevTools against the deployed URL). No API responses
       are in Cache Storage.
 
 **Hosting settings to check while deploying**
-- [ ] `sw.js` is served with `Cache-Control: no-cache` (otherwise updates can be delayed by the HTTP cache).
-- [ ] Unknown paths (e.g. `/notes/5`) are rewritten to `index.html` (SPA fallback), so a first visit to a deep
+- [x] `sw.js` is served with `Cache-Control: no-cache` (otherwise updates can be delayed by the HTTP cache).
+- [x] Unknown paths (e.g. `/notes/5`) are rewritten to `index.html` (SPA fallback), so a first visit to a deep
       link works before the service worker is installed.
-- [ ] The backend's `CORS_ORIGINS` contains the deployed frontend URL.
+- [x] The backend's `CORS_ORIGINS` contains the deployed frontend URL (no CORS errors on the live site).
