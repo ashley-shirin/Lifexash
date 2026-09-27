@@ -200,11 +200,12 @@ SET GLOBAL tidb_enable_check_constraint = ON;  -- otherwise TiDB silently drops 
 ```
 
 **Differences from MySQL:**
-- **Verified on TiDB:** `ON DELETE CASCADE` and utf8mb4 (emoji) behave the same as on MySQL.
-- **CHECK constraints** are only kept if the setting above is on. On Starter it can be turned on, and
-  then the mood CHECK is enforced. The API also validates mood 1–5.
-- **From TiDB's documentation, not yet tested on the cluster:** UNIQUE keys, ENUM and
-  `ON UPDATE CURRENT_TIMESTAMP` behave the same.
+- **Tested on the TiDB cluster** (through the app): `ON DELETE CASCADE` and the UNIQUE keys (409 errors)
+  behave the same as on MySQL.
+- **CHECK constraints** are only kept if the setting above is on (Starter accepts it). The API also
+  validates mood 1–5, so the app is safe either way.
+- **From TiDB's documentation, not yet tested on the cluster:** ENUM, utf8mb4 (emoji) and
+  `ON UPDATE CURRENT_TIMESTAMP` behave the same. The `verify_remote_db` run below confirms utf8mb4 and CHECK.
 - **Ids** are unique but not consecutive (TiDB hands out ids in batches), and nothing in the app
   depends on consecutive ids.
 - **Idle connections** are closed when the cluster scales down, so the connection pool checks
@@ -212,7 +213,8 @@ SET GLOBAL tidb_enable_check_constraint = ON;  -- otherwise TiDB silently drops 
 
 **Check a database:** `python -m scripts.verify_remote_db` checks whichever database `DATABASE_URL`
 points at. It covers TLS, tables and migrations, the mood CHECK, ON DELETE CASCADE and utf8mb4. It uses
-its own test user and removes it afterwards. It passed on TiDB Cloud on 2026-09-27. The full manual
+its own test user and removes it afterwards. Its last line names the database and says LOCAL or
+REMOTE, so check that it really ran against the cloud. The full manual
 plan is the [TiDB checklist](docs/tidb-test-checklist.md).
 
 ## Backups

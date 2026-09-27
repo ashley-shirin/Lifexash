@@ -202,7 +202,11 @@ def main() -> int:
             left = db.scalar(select(func.count()).where(User.id == user_id))
         report("PASS" if left == 0 else "FAIL", "Test user removed", f"id {user_id}")
 
-    print(f"\n{'All checks passed.' if failures == 0 else f'{failures} check(s) FAILED.'}")
+    # Name the target in the last line, so a copied "All checks passed" always says WHICH database it was.
+    # (A local run was once reported as a TiDB run: DATABASE_URL wasn't set in that terminal.)
+    kind = "REMOTE database (verified TLS)" if connect_args_for(settings.DATABASE_URL) else "LOCAL database, NOT the cloud one"
+    result = "All checks passed" if failures == 0 else f"{failures} check(s) FAILED"
+    print(f"\n{result} on {url.host}:{url.port or 3306}, {kind}.")
     return 0 if failures == 0 else 1
 
 

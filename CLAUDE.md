@@ -14,10 +14,10 @@
 - Mobile layout + PWA (bottom nav, 44 px touch targets, manifest + icons, service worker, offline banner,
   update prompt) is **done and tested** (Rounds 1–6) — see `docs/mobile-pwa-test-checklist.md`.
 - TiDB Cloud Starter support (verified TLS for remote DBs, pool_recycle, local-only backup scripts) is
-  **done**. The TiDB cluster exists (database `lifexash`, migrated to head, CHECK enforced), and
-  `python -m scripts.verify_remote_db` passed on it (2026-09-27). The rest of
-  `docs/tidb-test-checklist.md` (app, UNIQUE/ENUM/FK errors, idle, backup guard) hasn't been run yet.
-- Next: finish the TiDB checklist, deploy,
+  **done and tested** on the real cluster (AWS Singapore, database `lifexash`, migrated to head):
+  Rounds 1, 4, 5, 6 of `docs/tidb-test-checklist.md` passed 2026-09-27. **Open:** re-run
+  `python -m scripts.verify_remote_db` against TiDB (the earlier "pass" hit local MySQL — Finding 1).
+- Next: that re-run, then deploy with Render (`render.yaml`, `docs/deploy-guide.md`),
   then run Round 7 of the mobile/PWA checklist (real phones, needs HTTPS).
 
 Personal productivity PWA: daily planner (tasks), notes with tags, mood journal.
@@ -66,6 +66,9 @@ Layering rule: routers only handle HTTP, services hold logic, models are tables 
   validating in Pydantic); ids are unique but not consecutive (never depend on id order or gaps);
   ENUM values can only be appended.
 - `scripts/backup_db.py` and `scripts/restore_test.py` are for local MySQL only (they refuse remote hosts).
+- Before any command meant for TiDB, check the target in the same terminal:
+  `python -c "from app.core.database import engine; print(engine.url)"`. Without `$env:DATABASE_URL`,
+  everything silently uses local MySQL from `backend/.env`. Never report a remote result without that check.
 - Mobile styles live in the `@media (max-width: 640px)` block at the end of `index.css`; touch targets ≥ 44 px.
 
 ## Run

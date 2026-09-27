@@ -1,6 +1,8 @@
 # TiDB Cloud Starter: manual test checklist
 
-Status: automated check passed on TiDB on 2026-09-27 (see below). The remaining manual rounds haven't been run yet.
+Status: Rounds 1, 4, 5 and 6 passed on 2026-09-27 against the real TiDB Starter cluster (AWS Singapore).
+Rounds 2–3 were skipped (covered by `verify_remote_db.py` and Round 4). **Open:** re-run `verify_remote_db.py`
+against TiDB. The earlier "passed" run was most likely against local MySQL (see Finding 1).
 
 Proves that the backend works on the production database, TiDB Cloud Starter (MySQL-compatible, TLS
 only), before deploying. It covers:
@@ -21,7 +23,7 @@ current PowerShell window, and later in the host's settings. A real environment 
 ## Setup
 
 - [x] TiDB Cloud → create a **Starter** cluster (free) in the region closest to where the backend will be hosted.
-- [ ] SQL Editor, as the cluster's root user:
+- [x] SQL Editor, as the cluster's root user:
   ```sql
   CREATE DATABASE lifexash CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
   CREATE USER '<PREFIX>.lifexash_app' IDENTIFIED BY '<a long random password>';
@@ -41,26 +43,45 @@ current PowerShell window, and later in the host's settings. A real environment 
   ```powershell
   $env:DATABASE_URL = 'mysql+pymysql://<PREFIX>.lifexash_app:<PASSWORD>@gateway01.<REGION>.prod.aws.tidbcloud.com:4000/lifexash?charset=utf8mb4'
   ```
+- [ ] **Host check, in the SAME window, before every other step** (added after Finding 1):
+  ```powershell
+  python -c "from app.core.database import engine; print(engine.url)"
+  ```
+  → must show `…@gateway01.<REGION>.prod.aws.tidbcloud.com:4000/lifexash` (the password shows as `***`).
+  If it shows `localhost`, the variable isn't set in this window: everything would silently run against
+  local MySQL from `backend/.env`. Repeat this check whenever you open a new window.
+- [x] **Create the tables** (added after Finding 1: a new cluster starts empty):
+  ```powershell
+  alembic upgrade head
+  alembic current      # → 81878a6609ca (head)
+  ```
+  Then in the SQL Editor: `USE lifexash; SHOW TABLES;` → the 7 tables.
 
 ## Automated check: `scripts/verify_remote_db.py`
 
-Run with `$env:DATABASE_URL` set to TiDB: `python -m scripts.verify_remote_db`. It uses its own test user
-and deletes it afterwards. Real data is only read. Exit code 0 = all passed.
+Run with `$env:DATABASE_URL` set to TiDB (host check above first): `python -m scripts.verify_remote_db`. It
+uses its own test user and deletes it afterwards. Real data is only read. Exit code 0 = all passed. The last
+line must say **`on gateway01…:4000, REMOTE database (verified TLS)`**. If it says `LOCAL database`, it
+didn't test TiDB.
 
-- [x] TLS in use, with the verified certifi settings (server reports a TiDB version and a TLS cipher).
-- [x] All 7 tables exist, with collation `utf8mb4_0900_ai_ci`. `alembic_version` is at head (`81878a6609ca`).
-- [x] mood CHECK constraint: **enforced** (mood 6 rejected with error 3819).
-- [x] Deleting a user CASCADE-deletes their tasks, notes, tags, note_tags and journal entries (all 1 → 0).
-- [x] utf8mb4: `utf8mb4 check 😀🎉 ñ 日本` saved and read back unchanged.
-- [x] Test user removed afterwards.
+**Re-run needed:** these boxes were first ticked from a run that most likely hit local MySQL (Finding 1).
+Cascade is confirmed on TiDB separately by Round 4 (last item). CHECK, utf8mb4 and collation are not
+confirmed on TiDB until this re-run.
+
+- [ ] TLS in use, with the verified certifi settings (server reports a TiDB version and a TLS cipher).
+- [ ] All 7 tables exist, with collation `utf8mb4_0900_ai_ci`. `alembic_version` is at head (`81878a6609ca`).
+- [ ] mood CHECK constraint: enforced (mood 6 rejected with error 3819), or not. Record which.
+- [ ] Deleting a user CASCADE-deletes their tasks, notes, tags, note_tags and journal entries (all 1 → 0).
+- [ ] utf8mb4: `utf8mb4 check 😀🎉 ñ 日本` saved and read back unchanged.
+- [ ] Test user removed afterwards.
 
 The manual rounds below are ticked only where the script fully covered them. They also test things
 the script doesn't: TiDB refusing unencrypted connections, the certificate hostname check, UNIQUE/ENUM/FK
 errors, the app itself, idle connections and the backup guard.
 
-## Round 1: TLS connection
+## Round 1: TLS connection (passed 2026-09-27)
 
-- [ ] The connection works and is encrypted:
+- [x] The connection works and is encrypted:
   ```powershell
   @'
   from sqlalchemy import text
@@ -73,7 +94,7 @@ errors, the app itself, idle connections and the backup guard.
   ```
   → `version` contains **TiDB**, `cipher` is **not empty** (e.g. `TLS_AES_128_GCM_SHA256`), and
   `time_zone` is `+00:00`.
-- [ ] TiDB itself refuses unencrypted connections. This test turns TLS **off** on purpose:
+- [x] TiDB itself refuses unencrypted connections. This test turns TLS **off** on purpose:
   ```powershell
   @'
   import pymysql
@@ -88,7 +109,7 @@ errors, the app itself, idle connections and the backup guard.
   '@ | python -
   ```
   → it prints "refused as expected" (e.g. "Connections using insecure transport are prohibited").
-- [ ] The certificate check is real. Connect to the gateway's **IP address** with the app's own TLS settings.
+- [x] The certificate check is real. Connect to the gateway's **IP address** with the app's own TLS settings.
       The certificate is for `*.tidbcloud.com`, not for an IP, so the hostname check must reject it:
   ```powershell
   @'
@@ -108,11 +129,11 @@ errors, the app itself, idle connections and the backup guard.
   ```
   → "refused as expected", with a certificate error such as "IP address mismatch". "connected" means the check failed.
 
-## Round 2: Migrations and table definitions
+## Round 2: Table definitions (skipped, covered)
 
-- [x] `alembic upgrade head` → finishes without errors. `alembic current` → `81878a6609ca (head)`.
-- [x] SQL Editor: `USE lifexash; SHOW TABLES;` → `alembic_version`, `journal_entries`, `note_tags`, `notes`,
-      `tags`, `tasks`, `users`.
+Skipped on 2026-09-27: covered by `verify_remote_db.py` (tables, collation, CHECK) and Round 4 (cascade).
+It only counts as covered once the re-run above is done. Migrations moved to Setup.
+
 - [ ] `SHOW CREATE TABLE journal_entries;` →
   - `COLLATE=utf8mb4_0900_ai_ci`
   - `UNIQUE KEY ... (user_id, entry_date)`
@@ -123,7 +144,11 @@ errors, the app itself, idle connections and the backup guard.
 - [ ] `SHOW CREATE TABLE note_tags;` → primary key `(note_id, tag_id)`, and **both** FKs `ON DELETE CASCADE`.
 - [ ] `SHOW CREATE TABLE users;` and `SHOW CREATE TABLE tags;` → `uq_users_email`, `uq_tags_user_id_name`.
 
-## Round 3: Constraints (SQL Editor)
+## Round 3: Constraints (SQL Editor) (skipped, covered)
+
+Skipped on 2026-09-27: UNIQUE was tested through the app in Round 4 (409s), cascade in Round 4 (last
+item), and CHECK and utf8mb4 by `verify_remote_db.py` (re-run needed). The ENUM and FK errors (1265, 1452)
+were not tested on TiDB. The API validates both before the database sees them.
 
 Uses a throw-away user. Write down its id and type it in as `<N>` below. Session variables like `@u`
 may be lost if the editor runs each statement in a new session.
@@ -169,47 +194,49 @@ may be lost if the editor runs each statement in a new session.
   ```
   → all **0**. The `note_tags` row went too, through notes → note_tags and tags → note_tags.
 
-## Round 4: The app against TiDB
+## Round 4: The app against TiDB (passed 2026-09-27)
 
 Same PowerShell window (`$env:DATABASE_URL` still set): `uvicorn app.main:app --reload`. Second window:
 `npm run dev` in `frontend/`.
 
-- [ ] <http://localhost:8000/api/health> → `{"status":"ok"}`.
-- [ ] Register **User A** and **User B** in the browser. Registering A's email again, in capitals, →
+- [x] <http://localhost:8000/api/health> → `{"status":"ok"}`.
+- [x] Register **User A** and **User B** in the browser. Registering A's email again, in capitals, →
       "email already registered" (409).
-- [ ] As A: add, edit, toggle and delete tasks. Notes with tags: create a tag inline, filter by it,
+- [x] As A: add, edit, toggle and delete tasks. Notes with tags: create a tag inline, filter by it,
       search, pin. Create the same tag again → 409 message. Journal: write today's entry.
-- [ ] Swagger, as A: `POST /api/journal` for a day that already has an entry → **409**. Mood `6` → **422**.
-- [ ] Timestamps: after editing a note it shows "updated just now", and the JSON `updated_at` ends in `Z`
+- [x] Swagger, as A: `POST /api/journal` for a day that already has an entry → **409**. Mood `6` → **422**.
+- [x] Timestamps: after editing a note it shows "updated just now", and the JSON `updated_at` ends in `Z`
       and matches the current UTC time.
-- [ ] IDOR spot check: as B, `GET /api/notes/{A's note id}` and `DELETE /api/tasks/{A's task id}` → **404**.
-- [ ] Dashboard sums: `python -m scripts.seed_demo <A's email> --yes`, then check the dashboard shows
-      **3 of 5** done today, score **60** and a streak of **7**. This is the `SUM()` bug from the dashboard
+- [x] IDOR spot check: as B, `GET /api/notes/{A's note id}` and `DELETE /api/tasks/{A's task id}` → **404**.
+- [x] Dashboard sums: `python -m scripts.seed_demo <A's email> --yes`, then check the dashboard shows
+      **3 of 5** done today, score **60** and a streak of **7**. These numbers assume an **empty** account:
+      seed_demo skips days that already have tasks or a journal entry (Finding 3), so use a freshly
+      registered user. This is the `SUM()` bug from the dashboard
       checklist, now checked on TiDB.
-- [ ] Ids: in Swagger, look at the `id` of the tasks you created. Gaps or jumps (e.g. 1, 2, 30001) are
+- [x] Ids: in Swagger, look at the `id` of the tasks you created. Gaps or jumps (e.g. 1, 2, 30001) are
       **expected** on TiDB and must not break anything. The planner's order is by time, not id.
-- [ ] Log in as A, then delete A's account in the SQL Editor (`DELETE FROM users WHERE email = '...'`) →
+- [x] Log in as A, then delete A's account in the SQL Editor (`DELETE FROM users WHERE email = '...'`) →
       the next action in the browser logs you out (401). No rows are left in any table for A's id.
 
-## Round 5: Idle connections
+## Round 5: Idle connections (passed 2026-09-27)
 
-- [ ] Leave the backend running and do nothing for **at least 10 minutes**. That's longer than
+- [x] Leave the backend running and do nothing for **at least 10 minutes**. That's longer than
       `pool_recycle` (5 min), and long enough for the cluster to close idle connections.
-- [ ] Reload the dashboard → it loads on the **first** try. There's no 500 error, and no
+- [x] Reload the dashboard → it loads on the **first** try. There's no 500 error, and no
       "Lost connection" / "MySQL server has gone away" in the uvicorn log.
-- [ ] Optional, the next day: the first request after a long idle time may be slow (the cluster
+- [ ] Optional (not run), the next day: the first request after a long idle time may be slow (the cluster
       is waking up) but must succeed.
 
-## Round 6: Backup scripts refuse the cloud database
+## Round 6: Backup scripts refuse the cloud database (passed 2026-09-27)
 
-- [ ] `python -m scripts.backup_db` → stops with "DATABASE_URL points at gateway01…, not a local MySQL". No
+- [x] `python -m scripts.backup_db` → stops with "DATABASE_URL points at gateway01…, not a local MySQL". No
       file is created in `Documents\LifeXash-backups`.
-- [ ] `python -m scripts.restore_test` → the same error. No `lifexash_restore_test` database appears on TiDB
+- [x] `python -m scripts.restore_test` → the same error. No `lifexash_restore_test` database appears on TiDB
       (`SHOW DATABASES;`).
 
 ## Clean-up
 
-- [ ] Delete the test accounts (User A, User B, the demo data) in the SQL Editor, unless you want to keep them
+- [x] Delete the test accounts (User A, User B, the demo data) in the SQL Editor, unless you want to keep them
       as the production demo.
 - [ ] `Remove-Item Env:DATABASE_URL`, or close the PowerShell window. Then `alembic current` and a page load
       in the app use the **local** MySQL again.
@@ -220,7 +247,23 @@ Same PowerShell window (`$env:DATABASE_URL` still set): `uvicorn app.main:app --
 
 Record anything that behaved differently from the expected results above.
 
-- 2026-09-27: `SET GLOBAL tidb_enable_check_constraint = ON` **works on Starter**. With it on before
-  `alembic upgrade head`, the mood CHECK is kept and enforced (error 3819), the same as on local MySQL.
-- 2026-09-27: `verify_remote_db.py` passed every check on TiDB (TLS, tables, collation, migrations at head,
-  cascade, utf8mb4).
+1. **The `lifexash` database on TiDB had no tables until `alembic upgrade head` was run by hand**, even though an
+   earlier `verify_remote_db.py` run had been reported as "all checks passed" on TiDB.
+   - **Cause (most likely):** that run went to **local MySQL**. On an empty TiDB database the script prints
+     `[FAIL] Tables exist … missing` and stops (exit 1), so it can't have passed there. Its results
+     (7 tables at head, CHECK enforced) match local MySQL exactly. `DATABASE_URL` was probably not
+     set in *that* PowerShell window (a different or reopened window), so `backend/.env` was used. The output
+     showed it (`Database: … on localhost:3306`, `[INFO] Local database: …`), but only the summary was passed on.
+   - **Actions:**
+     - Setup now starts with a host check and `alembic upgrade head`.
+     - `verify_remote_db.py` now names the database and LOCAL/REMOTE in its final line.
+     - The script's boxes are unticked until it's re-run against TiDB.
+     - README / CLAUDE.md no longer claim that CHECK is enforced on Starter.
+2. **`seed_demo` said "Would add N tasks …" and then "Done." on a real run.** Fixed: a real run now prints
+   "Added N tasks and M journal entries." only after the commit. "Would add …" is kept for the dry run
+   (without `--yes`). There's a unit test in `tests/test_seed_demo.py`.
+3. **`seed_demo` skips days that already have data**, so on a non-empty account the dashboard doesn't show 3 of 5 /
+   60 / streak 7. The Round 4 note now says the numbers assume an empty account, and the script prints a
+   note when it skips days.
+4. `SET GLOBAL tidb_enable_check_constraint = ON` was accepted on Starter (Setup). Whether the mood CHECK is
+   **enforced** on the TiDB tables is confirmed by the `verify_remote_db.py` re-run.

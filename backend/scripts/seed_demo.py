@@ -8,8 +8,9 @@ Safety:
 - Only inserts rows for the user with that email. It never updates or deletes anything.
 - A day that already has tasks (or a journal entry) is skipped, so running it twice adds nothing new.
 
-The pattern is fixed (not random), so the result is predictable on a fresh user:
-today 3 of 5 done (60%), streak 7 days, 7-day average mood 3.8.
+The pattern is fixed (not random), so the result is predictable on a FRESH user (no tasks or journal
+entries in the last 14 days): today 3 of 5 done (60%), streak 7 days, 7-day average mood 3.8.
+Skipped days keep their existing data, so on a non-empty account the dashboard numbers differ.
 """
 
 import argparse
@@ -61,6 +62,12 @@ def local_to_utc(day: date, at: time) -> datetime:
     """A wall-clock time on this computer → naive UTC, the way timestamps are stored in the DB."""
     # astimezone() on a naive datetime treats it as this computer's local time.
     return datetime.combine(day, at).astimezone(UTC).replace(tzinfo=None)
+
+
+def summary(added_tasks: int, added_entries: int, dry_run: bool) -> str:
+    """'Would add …' for a dry run (nothing written), 'Added …' only after a real commit."""
+    verb = "Would add" if dry_run else "Added"
+    return f"{verb} {added_tasks} tasks and {added_entries} journal entries."
 
 
 def main() -> int:
@@ -130,17 +137,19 @@ def main() -> int:
 
         print(f"User: {user.name} <{user.email}> (id {user.id})")
         print(f"Days: {first_day} to {args.today}")
-        print(f"Would add {added_tasks} tasks and {added_entries} journal entries.")
         if skipped:
             print("Skipped (already had data): " + ", ".join(skipped))
+            print("Note: the expected dashboard numbers (3 of 5, streak 7) only hold for a fresh user.")
 
         if not args.yes:
             db.rollback()
+            print(summary(added_tasks, added_entries, dry_run=True))
             print("Dry run: nothing was written. Add --yes to really add the rows.")
             return 0
 
         db.commit()
-        print("Done.")
+        # Printed only after the commit succeeded, so "Added" is always true.
+        print(summary(added_tasks, added_entries, dry_run=False))
         return 0
 
 
