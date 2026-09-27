@@ -44,6 +44,7 @@ client.interceptors.response.use(
 
 // Turns an axios error into a message we can show the user.
 export function getErrorMessage(error, fallback = "Something went wrong. Please try again.") {
+  if (!error.response && !navigator.onLine) return "You're offline. Changes can't be saved right now.";
   if (!error.response) return "Can't reach the server. Is the backend running?";
   const detail = error.response.data?.detail;
   if (typeof detail === "string") return detail;

@@ -24,12 +24,17 @@ and ran the test plans, and debugged the issues they found (one of them is descr
   tasks done, today's mood, the 7-day average mood, the next 3 tasks and a weekly chart.
 - **Time zones:** dates are always the user's *local* day, and timestamps are stored in UTC, so
   "updated 2 hours ago" is correct wherever you are.
+- **Mobile-friendly:** every page works on a 375 px phone screen. It has a bottom navigation bar, touch
+  targets of at least 44 px, a full-screen task form and a compact 7-column journal calendar. The layout
+  uses plain CSS media queries, with no UI library.
+- **Installable (PWA):** it can be installed to the home screen or desktop, opens in its own window, shows
+  a banner when you're offline, and asks you to reload when a new version is deployed.
 
 ## Tech stack
 
 | Layer    | Technology |
 |----------|------------|
-| Frontend | React 19, Vite, React Router, Axios |
+| Frontend | React 19, Vite, React Router, Axios, vite-plugin-pwa (Workbox) |
 | Backend  | FastAPI, Pydantic v2, SQLAlchemy 2.0, Alembic |
 | Database | MySQL 9 |
 | Auth     | JWT (PyJWT), bcrypt password hashing |
@@ -57,6 +62,10 @@ flowchart LR
 - **User isolation:** every query filters by the logged-in user's id. Another user's record returns **404**,
   not 403, so the API never reveals that it exists.
 - **Nothing derived is stored:** score and streak are calculated from tasks when requested.
+- **The service worker caches only the app shell:** the service worker (the PWA's background script)
+  stores the built HTML, JS, CSS and icons, so the app opens fast and even offline. It **never** caches
+  API responses. They are private, so on a shared device the next person could see them, and a cached
+  copy would go out of date. Offline, the app says that changes can't be saved instead of showing old data.
 - **Config from the environment only:** the app refuses to start without `DATABASE_URL`, or if `JWT_SECRET`
   is missing or shorter than 32 characters.
 
@@ -66,7 +75,8 @@ flowchart LR
 through in Swagger and then in the browser. Each item lists the expected status code or on-screen result.
 [Auth](docs/auth-test-checklist.md) · [Tasks](docs/tasks-test-checklist.md) ·
 [Notes](docs/notes-test-checklist.md) · [Journal](docs/journal-test-checklist.md) ·
-[Dashboard](docs/dashboard-test-checklist.md) · [Pre-deploy](docs/pre-deploy-checklist.md)
+[Dashboard](docs/dashboard-test-checklist.md) · [Pre-deploy](docs/pre-deploy-checklist.md) ·
+[Mobile + PWA](docs/mobile-pwa-test-checklist.md)
 
 **User isolation (IDOR) tests:** with two accounts, User B tries to read, edit, toggle, pin and delete User
 A's tasks, notes, tags and journal entries by guessing their ids. Every attempt must return **404**, the
@@ -140,6 +150,11 @@ npm install
 npm run dev                        # http://localhost:5173
 ```
 
+The service worker is only active in the production build. To try the installable app locally, run
+`npm run build`, then `npm run preview` (http://localhost:4173, so add that URL to the backend's
+`CORS_ORIGINS`). The icons in `frontend/public/` are drawn by `node scripts/make-icons.mjs`, which needs
+no image library.
+
 ### Environment variables
 
 | Variable | Where | Required | Meaning |
@@ -191,5 +206,4 @@ mysql --default-character-set=utf8mb4 -u your_db_user -p -e "source C:/Users/<yo
 
 ## Roadmap
 
-- Installable PWA (offline app shell, home-screen icon)
 - Deployment

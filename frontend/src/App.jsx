@@ -1,7 +1,9 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import Navbar from "./components/Navbar.jsx";
+import OfflineBanner from "./components/OfflineBanner.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import UpdatePrompt from "./components/UpdatePrompt.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Journal from "./pages/Journal.jsx";
 import JournalEditor from "./pages/JournalEditor.jsx";
@@ -17,6 +19,8 @@ export default function App() {
   return (
     <>
       <Navbar />
+      <OfflineBanner />
+      <UpdatePrompt />
       <main>
         <Routes>
           <Route path="/login" element={<Login />} />

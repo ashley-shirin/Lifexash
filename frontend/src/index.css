@@ -834,3 +834,270 @@ a.calendar-day:hover {
 .chart-table th[scope="row"] {
   font-weight: 500;
 }
+
+/* Checkbox wrapper in a task row (on phones it grows to a 44 px tap area) */
+.task-check {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Offline / update banners (full width, just under the navbar) */
+.app-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.offline-banner {
+  color: #92400e;
+  background: #fef3c7;
+  border-bottom: 1px solid #fcd34d;
+}
+
+.update-banner {
+  color: #1e3a8a;
+  background: #dbeafe;
+  border-bottom: 1px solid #93c5fd;
+}
+
+.update-banner button {
+  padding: 0.35rem 0.9rem;
+}
+
+/* Bottom navigation: only shown on phones (see the media query below) */
+.bottom-nav {
+  display: none;
+}
+
+/* ---------- Phones (up to 640 px wide) ---------- */
+@media (max-width: 640px) {
+  main {
+    padding: 1rem 1rem calc(5.5rem + env(safe-area-inset-bottom)); /* room for the bottom nav */
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  /* Top bar keeps only the brand; the page links move to the bottom bar */
+  .navbar .top-link {
+    display: none;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -2px 8px rgb(0 0 0 / 0.05);
+  }
+
+  .bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    font-size: 0.72rem;
+    color: #6b7280;
+    text-decoration: none;
+  }
+
+  .bottom-nav a.active {
+    font-weight: 600;
+    color: #4f46e5;
+  }
+
+  .bottom-nav svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Touch targets: at least 44 px high. border-box so padding counts inside the 44 px. */
+  button,
+  a.button,
+  input:not([type="checkbox"]),
+  select,
+  textarea {
+    box-sizing: border-box;
+    min-height: 44px;
+  }
+
+  /* 16 px text in form fields stops iPhone Safari from zooming in when a field is tapped */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  a.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .link-button {
+    min-width: 44px;
+  }
+
+  /* Standalone "← Back" links at the top of the editors */
+  .note-editor > a:first-child,
+  .journal-editor > a:first-child {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .auth-card {
+    margin: 1rem auto;
+    padding: 1.25rem 1rem;
+  }
+
+  .profile dd {
+    overflow-wrap: anywhere;
+  }
+
+  /* Planner / journal navigation: Prev, Today, Next share a row; the date picker gets its own row */
+  .day-nav button {
+    flex: 1;
+  }
+
+  .day-nav input[type="date"] {
+    flex: 1 1 100%;
+  }
+
+  /* Task row: checkbox + title on top, time / priority / actions underneath */
+  .task-item {
+    display: grid;
+    grid-template-columns: 44px auto 1fr auto;
+    grid-template-areas:
+      "check main main main"
+      ". time badge actions";
+    gap: 0.25rem 0.5rem;
+    align-items: center;
+    padding: 0.5rem 0.75rem 0.5rem 0.25rem;
+  }
+
+  .task-check {
+    grid-area: check;
+    width: 44px;
+    height: 44px;
+  }
+
+  .task-item input[type="checkbox"] {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .task-main {
+    grid-area: main;
+  }
+
+  .task-time {
+    grid-area: time;
+  }
+
+  .task-item .badge {
+    grid-area: badge;
+    justify-self: start;
+  }
+
+  .task-actions {
+    grid-area: actions;
+    display: flex;
+  }
+
+  /* Task modal: full screen on phones */
+  .modal {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom));
+    border-radius: 0;
+  }
+
+  .modal-actions {
+    flex-wrap: wrap;
+  }
+
+  /* Notes: one column of cards, bigger tap targets for chips and the pin */
+  .note-list {
+    grid-template-columns: 1fr;
+  }
+
+  .chip .chip-remove {
+    min-width: 44px;
+  }
+
+  .pin-button {
+    min-width: 44px;
+    margin: -0.6rem -0.6rem -0.6rem 0; /* bigger tap area without making the card taller */
+  }
+
+  /* Journal calendar: still 7 columns, just smaller cells (about 46 px wide at 375 px) */
+  .calendar {
+    gap: 0.2rem;
+  }
+
+  .calendar-weekday {
+    font-size: 0.7rem;
+  }
+
+  .calendar-day {
+    min-width: 0;
+    min-height: 3rem;
+    padding: 0.2rem 0.1rem;
+    border-radius: 6px;
+  }
+
+  .calendar-day.today {
+    padding: calc(0.2rem - 1px) calc(0.1rem - 1px); /* the thicker border shouldn't shrink the emoji */
+  }
+
+  .calendar-number {
+    font-size: 0.7rem;
+  }
+
+  .calendar-mood {
+    font-size: 1.2rem;
+  }
+
+  /* Journal editor: 5 mood buttons in one row */
+  .mood-picker {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .mood-options {
+    gap: 0.3rem;
+  }
+
+  .mood-option {
+    min-width: 0;
+    padding: 0.5rem 0.1rem;
+    font-size: 0.8rem;
+  }
+
+  .mood-emoji {
+    font-size: 1.9rem;
+  }
+
+  .weekly-chart {
+    padding: 0.75rem;
+  }
+}
