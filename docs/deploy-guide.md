@@ -82,9 +82,9 @@ https://lifexash-api.onrender.com.
       (login page or "Note not found"), not Render's 404. That proves the SPA rewrite works.
 - [x] Register, log in, add a task, write a note and a journal entry, reload → the data is still there (it's in TiDB).
 - [x] DevTools → Console: no CORS errors. Network: API calls go to `lifexash-api.onrender.com/api/…`.
-- [ ] Then run **Round 7** of the [mobile/PWA checklist](mobile-pwa-test-checklist.md) (real phones over HTTPS),
-      and Round 6 again on the live site (no API responses in Cache Storage). Round 7 is partly done: Android
-      passed on 2026-09-28, iPhone and the update prompt are still open.
+- [x] Then run **Round 7** of the [mobile/PWA checklist](mobile-pwa-test-checklist.md) (real phones over HTTPS),
+      and Round 6 again on the live site (no API responses in Cache Storage). Passed on **Android** on
+      2026-09-28, including the update prompt and Round 6 on the live site. **iPhone: not tested.**
 
 ## Everyday use
 

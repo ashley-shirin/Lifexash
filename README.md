@@ -93,8 +93,11 @@ flowchart LR
 - **Database:** TiDB Cloud Starter (free, MySQL-compatible) in AWS Singapore. The API connects over TLS and
   verifies the server's certificate (see [Production database](#production-database-tidb-cloud-starter)).
 - **Secrets** (`DATABASE_URL`, `JWT_SECRET`) are only in Render's environment settings, never in the repo.
-- **Tested live:** the [deploy guide](docs/deploy-guide.md)'s live checks passed on 2026-09-27, and the
-  installed PWA passed on an Android phone on 2026-09-28. It hasn't been tested on an iPhone yet.
+- **Tested live:** the [deploy guide](docs/deploy-guide.md)'s live checks passed on 2026-09-27. On
+  2026-09-28 the installed PWA passed on an Android phone (Chrome): install and icon, standalone start on
+  the dashboard, phone layout, offline banner, and the "New version available · Reload" prompt after a real
+  deploy. Cache Storage on the live site holds only the app shell, no API responses. It hasn't been tested
+  on an iPhone yet.
 
 ## How I tested it
 
@@ -278,4 +281,8 @@ mysql --default-character-set=utf8mb4 -u your_db_user -p -e "source C:/Users/<yo
 
 ## Roadmap
 
-- Test the installed app on an iPhone (Safari) and the "New version available" prompt on a phone
+The planned features are done. Optional ideas:
+
+- Test the installed app on an iPhone (Safari).
+- A "Try again" button when a request fails (e.g. while the free API is waking up).
+- A read-only demo account, so visitors can look around without registering.

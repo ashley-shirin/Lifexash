@@ -19,10 +19,12 @@
   CHECK enforced on TiDB Starter (with tidb_enable_check_constraint = ON before migrating).
 - **Deployed** (2026-09-27) with Render (`render.yaml`, `docs/deploy-guide.md`):
   site https://lifexash-web.onrender.com, API https://lifexash-api.onrender.com (free plan, Singapore;
-  cold start about 1 min). Deploy guide step 4 passed. Mobile/PWA Round 7 passed on Android 2026-09-28;
-  iPhone not tested.
-- Next: the update-prompt check on the phone (deploy a small change, then "New version available · Reload"
-  in the installed app). Then, when possible, iPhone and Round 6 (Cache Storage) on the live site.
+  cold start about 1 min). Deploy guide step 4 passed. Mobile/PWA Round 7 passed on Android 2026-09-28
+  (install, standalone, layout, offline banner, update prompt, no API data in Cache Storage).
+  iPhone not tested. "Waking up the server" notice (`WakingUpNotice.jsx`, `api/slowRequests.js`)
+  is unit-tested; on the phone it's only been seen with an awake API (no notice, as expected).
+- **Project complete.** Optional next ideas: iPhone test; a "Try again" button for failed requests;
+  a read-only demo account.
 - Deploying = push to `main` (Render auto-deploys; migrations run at start). Migrations must be backwards
   compatible (the old version serves until the new one is healthy).
 

@@ -1,7 +1,8 @@
 # Mobile layout + PWA: manual test checklist
 
-Status: Rounds 1–6 passed on 2026-09-27. Round 7 partly passed on Android (Chrome) on 2026-09-28 against
-https://lifexash-web.onrender.com. iPhone was not tested. The update prompt check on the phone is still open.
+Status: Rounds 1–6 passed on 2026-09-27. Round 7 passed on Android (Chrome) on 2026-09-28 against
+https://lifexash-web.onrender.com, including the update prompt and Round 6 on the live site. iPhone was not
+tested. The "waking up" notice has only been checked while the API was already awake (see its items).
 
 Covers the `feature/mobile-pwa` changes: phone layout (bottom nav, 44 px touch targets, full-screen task
 modal, compact journal calendar), the web app manifest and icons, the service worker (app shell only),
@@ -161,7 +162,7 @@ Installing needs a normal window, not Incognito.
 - [x] Open the site → ⋮ → **Install app** (or the install banner) → the icon on the home screen is the LX icon,
       shaped by the phone's mask (circle or squircle) with nothing cut off.
 - [x] Opening it from the home screen → full screen, no address bar, starts on the dashboard, and the status
-      bar is indigo. (Standalone and the indigo bar were confirmed. The start page wasn't recorded separately.)
+      bar is indigo. (Starts on the dashboard: confirmed 2026-09-28.)
 
 **iPhone (Safari): not tested**
 - [ ] Share → **Add to Home Screen** → the LX (apple-touch-icon) appears. It opens without Safari's address bar.
@@ -169,13 +170,13 @@ Installing needs a normal window, not Incognito.
 - [ ] Tapping inputs doesn't zoom the page in.
 
 **Both phones** (only Android was tested)
-- [ ] Repeat the Round 1 checks with a real finger: every button is easy to hit, and the calendar emojis are visible.
-      Partly checked on Android: the bottom bar works, the task form is full screen, and tapping inputs doesn't
-      zoom. The calendar emojis weren't recorded.
+- [x] Repeat the Round 1 checks with a real finger: every button is easy to hit, and the calendar emojis are visible.
+      Android: the bottom bar works, the task form is full screen, tapping inputs doesn't zoom, and the journal
+      calendar emojis are fully visible.
 - [x] Airplane mode → the offline banner appears. Turn it off → the banner goes away.
-- [ ] Deploy a small change → open the installed app → "New version available · Reload" appears, and
-      Reload shows the change. **Next:** do this after the current deploy.
-      The "waking up" notice (below) is a good change to deploy for this.
+- [x] Deploy a small change → open the installed app → "New version available · Reload" appears, and
+      Reload shows the change. Android 2026-09-28, with the "waking up" notice deploy: the banner appeared,
+      and Reload loaded the new version and removed the banner.
 - [ ] **"Waking up the server" notice, locally** (PC, `npm run dev`). DevTools → Network → throttling
       dropdown → **Add…** → a custom profile with **Latency 8000 ms**, then select it. ("Slow 3G" adds only
       about 2 s, which is under the 5 s limit.) Then:
@@ -192,8 +193,10 @@ Installing needs a normal window, not Incognito.
 - [ ] **"Waking up the server" notice, live** (after deploy): leave the site unused for 20+ minutes (the free
       API sleeps after about 15), then open the installed app → the notice appears while the API wakes up
       and goes away when the dashboard loads.
-- [ ] Round 6 again on the live site (desktop Chrome DevTools against the deployed URL). No API responses
-      are in Cache Storage.
+      **2026-09-28 (Android):** the API answered at normal speed, so it wasn't asleep, and the notice correctly
+      didn't appear. The wake-up case itself (the notice appears, then disappears) hasn't been seen yet.
+- [x] Round 6 again on the live site (desktop Chrome DevTools against the deployed URL). No API responses
+      are in Cache Storage. 2026-09-28: only the Workbox precache (app shell), with no `/api` responses.
 
 **Hosting settings to check while deploying**
 - [x] `sw.js` is served with `Cache-Control: no-cache` (otherwise updates can be delayed by the HTTP cache).
