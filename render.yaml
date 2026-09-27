@@ -1,0 +1,63 @@
+# Render Blueprint: the whole deployment as code. Render reads this file when you create a Blueprint
+# from this repo (Dashboard → New → Blueprint) and creates both services below.
+# Secrets are NOT in this file: every `sync: false` variable is asked for once, in the Render dashboard.
+# Step-by-step instructions: docs/deploy-guide.md
+
+services:
+  # ---------- Backend: FastAPI ----------
+  - type: web
+    name: lifexash-api
+    runtime: python
+    plan: free
+    region: singapore # same region as the TiDB cluster (AWS Singapore): short database round trips
+    rootDir: backend # build and start commands run inside backend/; other folders don't trigger a deploy
+    buildCommand: pip install -r requirements.txt
+    # Migrations run on every start, before the server accepts requests. `upgrade head` does nothing
+    # when the database is already up to date, and `&&` means a failed migration stops the start.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health # Render only switches traffic to a new deploy once this returns 200
+    autoDeploy: true # deploy on every push to main
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.14.5 # same as local development; Render needs the full x.y.z here
+      - key: DATABASE_URL # TiDB URL with the lifexash_app user (TLS is added by the code)
+        sync: false
+      - key: JWT_SECRET # at least 32 random characters, different from the local one
+        sync: false
+      - key: CORS_ORIGINS # the static site's URL, e.g. https://lifexash-web.onrender.com (no trailing /)
+        sync: false
+
+  # ---------- Frontend: React build, served from Render's CDN ----------
+  # No region: static sites are served from a global CDN.
+  # No rootDir: the build runs from the repo root, so the publish path below is unambiguous.
+  - type: web
+    name: lifexash-web
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/dist
+    buildFilter:
+      paths:
+        - frontend/** # only frontend changes rebuild the site
+    envVars:
+      - key: NODE_VERSION
+        value: "24" # Node 24 LTS; Vite 8 needs 20.19+ or 22.12+
+      - key: VITE_API_URL # the API's URL + /api, e.g. https://lifexash-api.onrender.com/api
+        sync: false # baked into the JS at build time: change it → trigger a new deploy
+    routes:
+      # SPA fallback: /notes/5 etc. get index.html and React Router shows the page.
+      # Render never applies a rewrite where a real file exists, so /assets/*.js and /sw.js are served as-is.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      # Always ask the server for the newest version of these, so a deploy reaches users (the files
+      # under /assets/ have content hashes in their names and can be cached normally).
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: / # the same page as /index.html, requested by its short name
+        name: Cache-Control
+        value: no-cache
